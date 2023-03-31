@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+/src/main/resources/application.properties
+/src/main/resources/bootstrap.properties
+/src/main/resources/bootstrap-docker.properties
+/src/main/resources/bootstrap-local.properties

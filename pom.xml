@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>cat.iesmanacor</groupId>
-    <artifactId>gestsuite-grups-cooperatius</artifactId>
+    <artifactId>grups-cooperatius</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>gestsuite-grups-cooperatius</name>
-    <description>gestsuite-grups-cooperatius</description>
+    <name>grups-cooperatius</name>
+    <description>grups-cooperatius</description>
     <properties>
         <java.version>17</java.version>
         <spring-cloud.version>2022.0.1</spring-cloud.version>
