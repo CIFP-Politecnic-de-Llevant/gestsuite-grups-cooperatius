@@ -1,7 +1,7 @@
 package cat.iesmanacor.gestsuitegrupscooperatius.repository;
 
-import cat.iesmanacor.gestsuite.grupscooperatius.model.GrupCooperatiu;
-import cat.iesmanacor.gestsuite.grupscooperatius.model.Membre;
+import cat.iesmanacor.gestsuitegrupscooperatius.model.GrupCooperatiu;
+import cat.iesmanacor.gestsuitegrupscooperatius.model.Membre;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

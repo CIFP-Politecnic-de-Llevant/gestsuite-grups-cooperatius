@@ -1,7 +1,7 @@
 package cat.iesmanacor.gestsuitegrupscooperatius.repository;
 
-import cat.iesmanacor.gestsuite.grupscooperatius.model.Item;
-import cat.iesmanacor.gestsuite.grupscooperatius.model.ValorItem;
+import cat.iesmanacor.gestsuitegrupscooperatius.model.Item;
+import cat.iesmanacor.gestsuitegrupscooperatius.model.ValorItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

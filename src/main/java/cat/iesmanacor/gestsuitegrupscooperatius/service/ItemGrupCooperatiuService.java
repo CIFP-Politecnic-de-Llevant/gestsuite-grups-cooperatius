@@ -1,30 +1,42 @@
 package cat.iesmanacor.gestsuitegrupscooperatius.service;
 
-import cat.iesmanacor.gestsuite.grupscooperatius.model.GrupCooperatiu;
-import cat.iesmanacor.gestsuite.grupscooperatius.model.ItemGrupCooperatiu;
-import cat.iesmanacor.gestsuite.grupscooperatius.repository.ItemGrupCooperatiuRepository;
+import cat.iesmanacor.gestsuitegrupscooperatius.dto.AgrupamentDto;
+import cat.iesmanacor.gestsuitegrupscooperatius.dto.GrupCooperatiuDto;
+import cat.iesmanacor.gestsuitegrupscooperatius.dto.ItemGrupCooperatiuDto;
+import cat.iesmanacor.gestsuitegrupscooperatius.model.GrupCooperatiu;
+import cat.iesmanacor.gestsuitegrupscooperatius.model.ItemGrupCooperatiu;
+import cat.iesmanacor.gestsuitegrupscooperatius.repository.ItemGrupCooperatiuRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ItemGrupCooperatiuService {
     @Autowired
     private ItemGrupCooperatiuRepository itemGrupCooperatiuRepository;
 
-    public ItemGrupCooperatiu save(ItemGrupCooperatiu itemGrupCooperatiu) {
-        return itemGrupCooperatiuRepository.save(itemGrupCooperatiu);
+    public ItemGrupCooperatiuDto save(ItemGrupCooperatiuDto itemGrupCooperatiuDto) {
+        ModelMapper modelMapper = new ModelMapper();
+        ItemGrupCooperatiu itemGrupCooperatiu = modelMapper.map(itemGrupCooperatiuDto,ItemGrupCooperatiu.class);
+        ItemGrupCooperatiu itemGrupCooperatiuSaved = itemGrupCooperatiuRepository.save(itemGrupCooperatiu);
+        return modelMapper.map(itemGrupCooperatiuSaved,ItemGrupCooperatiuDto.class);
     }
 
-    public ItemGrupCooperatiu getItemGrupCooperatiuById(Long id){
+    public ItemGrupCooperatiuDto getItemGrupCooperatiuById(Long id){
+        ModelMapper modelMapper = new ModelMapper();
         //Ha de ser findById i no getById perquè getById és Lazy
-        return itemGrupCooperatiuRepository.findById(id).get();
+        ItemGrupCooperatiu itemGrupCooperatiu = itemGrupCooperatiuRepository.findById(id).get();
         //return grupCooperatiuRepository.getById(id);
+        return modelMapper.map(itemGrupCooperatiu,ItemGrupCooperatiuDto.class);
     }
 
-    public List<ItemGrupCooperatiu> findAllByGrupCooperatiu(GrupCooperatiu grupCooperatiu){
-        return itemGrupCooperatiuRepository.findAllByGrupCooperatiu(grupCooperatiu);
+    public List<ItemGrupCooperatiuDto> findAllByGrupCooperatiu(GrupCooperatiuDto grupCooperatiuDto){
+        ModelMapper modelMapper = new ModelMapper();
+        GrupCooperatiu grupCooperatiu = modelMapper.map(grupCooperatiuDto,GrupCooperatiu.class);
+        return itemGrupCooperatiuRepository.findAllByGrupCooperatiu(grupCooperatiu).stream().map(itemGrupCooperatiu->modelMapper.map(itemGrupCooperatiu, ItemGrupCooperatiuDto.class)).collect(Collectors.toList());
     }
 
 
