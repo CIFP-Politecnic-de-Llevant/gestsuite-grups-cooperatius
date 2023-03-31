@@ -1,18 +1,16 @@
 package cat.iesmanacor.gestsuitegrupscooperatius.controller;
 
-import cat.iesmanacor.gestsuite.core.model.Notificacio;
-import cat.iesmanacor.gestsuite.core.model.NotificacioTipus;
-import cat.iesmanacor.gestsuite.core.model.gestib.Usuari;
-import cat.iesmanacor.gestsuite.core.service.MathService;
-import cat.iesmanacor.gestsuite.core.service.TokenManager;
-import cat.iesmanacor.gestsuite.core.service.UsuariService;
-import cat.iesmanacor.gestsuite.grupscooperatius.model.*;
-import cat.iesmanacor.gestsuite.grupscooperatius.service.*;
+import cat.iesmanacor.common.model.Notificacio;
+import cat.iesmanacor.common.model.NotificacioTipus;
+import cat.iesmanacor.gestsuitegrupscooperatius.dto.*;
+import cat.iesmanacor.gestsuitegrupscooperatius.dto.gestib.UsuariDto;
+import cat.iesmanacor.gestsuitegrupscooperatius.restclient.CoreRestClient;
+import cat.iesmanacor.gestsuitegrupscooperatius.service.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.*;
@@ -31,10 +28,7 @@ import java.util.stream.Collectors;
 public class GrupsCooperatiusController {
 
     @Autowired
-    private UsuariService usuariService;
-
-    @Autowired
-    private TokenManager tokenManager;
+    private CoreRestClient coreRestClient;
 
     @Autowired
     private ItemService itemService;
@@ -77,20 +71,20 @@ public class GrupsCooperatiusController {
 
         //Usuaris i valors dels ítems
         JsonArray membresJSON = jsonObject.get("members").getAsJsonArray();
-        List<Membre> membres = new ArrayList<>();
+        List<MembreDto> membres = new ArrayList<>();
         for (JsonElement membreJSON : membresJSON) {
 
-            Membre membre = new Membre();
+            MembreDto membre = new MembreDto();
             membre.setNom(membreJSON.getAsJsonObject().get("nom").getAsString());
             if (membreJSON.getAsJsonObject().get("agrupamentFixe") != null && !membreJSON.getAsJsonObject().get("agrupamentFixe").isJsonNull()) {
                 membre.setAgrupamentFixe(membreJSON.getAsJsonObject().get("agrupamentFixe").getAsString());
             }
 
             JsonArray itemsUsuari = membreJSON.getAsJsonObject().get("valorsItemMapped").getAsJsonArray();
-            List<ValorItemMembre> valorsItemMembre = new ArrayList<>();
+            List<ValorItemMembreDto> valorsItemMembre = new ArrayList<>();
             for (JsonElement itemUsuari : itemsUsuari) {
-                ValorItemMembre valorItemMembre = new ValorItemMembre();
-                ValorItem valorItem = valorItemService.findById(itemUsuari.getAsJsonObject().get("value").getAsLong());
+                ValorItemMembreDto valorItemMembre = new ValorItemMembreDto();
+                ValorItemDto valorItem = valorItemService.findById(itemUsuari.getAsJsonObject().get("value").getAsLong());
 
                 valorItemMembre.setMembre(membre);
                 valorItemMembre.setValorItem(valorItem);
@@ -106,14 +100,14 @@ public class GrupsCooperatiusController {
         Collections.shuffle(membres);
 
 
-        List<Membre>[] grups = new ArrayList[numGrups];
+        List<MembreDto>[] grups = new ArrayList[numGrups];
         for (int j = 0; j < grups.length; j++) {
             grups[j] = new ArrayList<>();
         }
 
         //Inserim membres fixes
         int maxMembresFixes = 0;
-        for (Membre m : membres) {
+        for (MembreDto m : membres) {
             if (m.getAgrupamentFixe() != null) {
                 //Elegim un grup a l'atzar també
                 String agrupamentFixeRaw = m.getAgrupamentFixe();
@@ -140,7 +134,7 @@ public class GrupsCooperatiusController {
 
         //Acabem d'inserir la resta de membres
         int i = 0;
-        for (Membre m : membres) {
+        for (MembreDto m : membres) {
             if (m.getAgrupamentFixe() == null) {
                 int j = 0;
                 while (grups[i % numGrups].size() >= maxMembresFixes && j < numGrups) {
@@ -154,10 +148,10 @@ public class GrupsCooperatiusController {
 
 
         //Pintem els resultats
-        List<Agrupament> agrupaments = new ArrayList<>();
+        List<AgrupamentDto> agrupaments = new ArrayList<>();
 
         for (int j = 0; j < grups.length; j++) {
-            Agrupament agrupament = new Agrupament();
+            AgrupamentDto agrupament = new AgrupamentDto();
             Set membresSet = new HashSet(grups[j]);
             agrupament.setMembres(membresSet);
             agrupament.setNumero(String.valueOf(j + 1));
@@ -184,13 +178,13 @@ public class GrupsCooperatiusController {
 
 
         JsonArray itemsGrupCooperatiuJSON = jsonGrupCooperatiu.get("itemsGrupCooperatiu").getAsJsonArray();
-        List<ItemGrupCooperatiu> itemsGrupCooperatiu = new ArrayList<>();
+        List<ItemGrupCooperatiuDto> itemsGrupCooperatiu = new ArrayList<>();
         for (JsonElement itemGrupCooperatiuJSON : itemsGrupCooperatiuJSON) {
 
-            Item it = itemService.getItemById(itemGrupCooperatiuJSON.getAsJsonObject().get("item").getAsJsonObject().get("id").getAsLong());
+            ItemDto it = itemService.getItemById(itemGrupCooperatiuJSON.getAsJsonObject().get("item").getAsJsonObject().get("id").getAsLong());
             Integer ponderacio = itemGrupCooperatiuJSON.getAsJsonObject().get("percentatge").getAsInt();
 
-            ItemGrupCooperatiu itemGrupCooperatiu = new ItemGrupCooperatiu();
+            ItemGrupCooperatiuDto itemGrupCooperatiu = new ItemGrupCooperatiuDto();
             itemGrupCooperatiu.setItem(it);
             itemGrupCooperatiu.setPercentatge(ponderacio);
 
@@ -199,20 +193,20 @@ public class GrupsCooperatiusController {
 
         //Usuaris i valors dels ítems
         //JsonArray membresJSON = jsonMembers.get("members").getAsJsonArray();
-        List<Membre> membres = new ArrayList<>();
+        List<MembreDto> membres = new ArrayList<>();
         for (JsonElement membreJSON : membresJSON) {
 
-            Membre membre = new Membre();
+            MembreDto membre = new MembreDto();
             membre.setNom(membreJSON.getAsJsonObject().get("nom").getAsString());
             if (membreJSON.getAsJsonObject().get("agrupamentFixe") != null && !membreJSON.getAsJsonObject().get("agrupamentFixe").isJsonNull()) {
                 membre.setAgrupamentFixe(membreJSON.getAsJsonObject().get("agrupamentFixe").getAsString());
             }
 
             JsonArray itemsUsuari = membreJSON.getAsJsonObject().get("valorsItemMapped").getAsJsonArray();
-            List<ValorItemMembre> valorsItemMembre = new ArrayList<>();
+            List<ValorItemMembreDto> valorsItemMembre = new ArrayList<>();
             for (JsonElement itemUsuari : itemsUsuari) {
-                ValorItemMembre valorItemMembre = new ValorItemMembre();
-                ValorItem valorItem = valorItemService.findById(itemUsuari.getAsJsonObject().get("value").getAsLong());
+                ValorItemMembreDto valorItemMembre = new ValorItemMembreDto();
+                ValorItemDto valorItem = valorItemService.findById(itemUsuari.getAsJsonObject().get("value").getAsLong());
 
                 valorItemMembre.setMembre(membre);
                 valorItemMembre.setValorItem(valorItem);
@@ -225,9 +219,9 @@ public class GrupsCooperatiusController {
 
             if (membreJSON.getAsJsonObject().get("amics") != null && !membreJSON.getAsJsonObject().get("amics").isJsonNull()) {
                 JsonArray amicsJson = membreJSON.getAsJsonObject().get("amics").getAsJsonArray();
-                List<Membre> amics = new ArrayList<>();
+                List<MembreDto> amics = new ArrayList<>();
                 for (JsonElement amic : amicsJson) {
-                    Membre membreAmic = new Membre();
+                    MembreDto membreAmic = new MembreDto();
                     membreAmic.setNom(amic.getAsString());
 
                     amics.add(membreAmic);
@@ -237,9 +231,9 @@ public class GrupsCooperatiusController {
 
             if (membreJSON.getAsJsonObject().get("enemics") != null && !membreJSON.getAsJsonObject().get("enemics").isJsonNull()) {
                 JsonArray enemicsJson = membreJSON.getAsJsonObject().get("enemics").getAsJsonArray();
-                List<Membre> enemics = new ArrayList<>();
+                List<MembreDto> enemics = new ArrayList<>();
                 for (JsonElement enemic : enemicsJson) {
-                    Membre membreEnemic = new Membre();
+                    MembreDto membreEnemic = new MembreDto();
                     membreEnemic.setNom(enemic.getAsString());
 
                     enemics.add(membreEnemic);
@@ -260,24 +254,24 @@ public class GrupsCooperatiusController {
             return new ResponseEntity<>(notificacio, HttpStatus.OK);
         }
 
-        List<Agrupament> agrupaments = mesclaMembres(membres, numGrups, numIteracions, percentatgeAmics, percentatgeEnemics);
+        List<AgrupamentDto> agrupaments = mesclaMembres(membres, numGrups, numIteracions, percentatgeAmics, percentatgeEnemics);
         return new ResponseEntity<>(agrupaments, HttpStatus.OK);
     }
 
     /* TODO: Acabar la segona manera de fer la mescla per aproximació */
-    private List<Agrupament> mesclaMembres2(List<Membre> membres, int numGrups, int numIteracions, int percentatgeAmics, int percentatgeEnemics) {
-        List<Membre>[] millorsAgrupacions = new ArrayList[numGrups];
+    private List<AgrupamentDto> mesclaMembres2(List<MembreDto> membres, int numGrups, int numIteracions, int percentatgeAmics, int percentatgeEnemics) {
+        List<MembreDto>[] millorsAgrupacions = new ArrayList[numGrups];
         Double millorPuntuacio = null;
 
         Collections.shuffle(membres);
 
-        List<Membre>[] grups = new ArrayList[numGrups];
+        List<MembreDto>[] grups = new ArrayList[numGrups];
         for (int j = 0; j < grups.length; j++) {
             grups[j] = new ArrayList<>();
         }
 
         //Inserim membres fixes
-        for (Membre m : membres) {
+        for (MembreDto m : membres) {
             if (m.getAgrupamentFixe() != null && !m.getAgrupamentFixe().isEmpty()) {
                 //Elegim un grup a l'atzar també
                 String agrupamentFixeRaw = m.getAgrupamentFixe().replaceAll("\\s+", "");
@@ -292,12 +286,12 @@ public class GrupsCooperatiusController {
         //System.out.println("Max membres fixes: "+maxMembresFixes);
 
         //Acabem d'inserir la resta de membres
-        for (Membre m : membres) {
+        for (MembreDto m : membres) {
             if (m.getAgrupamentFixe() == null || m.getAgrupamentFixe().isEmpty()) {
                 Integer minGrup = null;
                 int index = 0;
                 int i = 0;
-                for (List<Membre> grup : grups) {
+                for (List<MembreDto> grup : grups) {
                     if (minGrup == null || grup.size() <= minGrup) {
                         minGrup = grup.size();
                         index = i;
@@ -311,12 +305,12 @@ public class GrupsCooperatiusController {
         int idx = 0;
         double puntuacio = 0;
         while (idx < numIteracions || millorPuntuacio==0.0){
-            for (List<Membre> grup : grups) {
-                for(Membre membre: grup){
+            for (List<MembreDto> grup : grups) {
+                for(MembreDto membre: grup){
                     if (membre.getAmics() != null && membre.getAmics().size() > 0) {
                         double numAmics = 0;
-                        for (Membre amic : membre.getAmics()) {
-                            for (Membre membreGrup : grup) {
+                        for (MembreDto amic : membre.getAmics()) {
+                            for (MembreDto membreGrup : grup) {
                                 if (amic.getNom().equals(membreGrup.getNom())) {
                                     numAmics++;
                                 }
@@ -336,8 +330,8 @@ public class GrupsCooperatiusController {
         return null;
     }
 
-    private List<Agrupament> mesclaMembres(List<Membre> membres, int numGrups, int numIteracions, int percentatgeAmics, int percentatgeEnemics) {
-        List<Membre>[] millorsAgrupacions = new ArrayList[numGrups];
+    private List<AgrupamentDto> mesclaMembres(List<MembreDto> membres, int numGrups, int numIteracions, int percentatgeAmics, int percentatgeEnemics) {
+        List<MembreDto>[] millorsAgrupacions = new ArrayList[numGrups];
         Double millorPuntuacio = null;
         Double millorPuntuacioTamanyGrup = null;
 
@@ -350,13 +344,13 @@ public class GrupsCooperatiusController {
 
             Collections.shuffle(membres);
 
-            List<Membre>[] grups = new ArrayList[numGrups];
+            List<MembreDto>[] grups = new ArrayList[numGrups];
             for (int j = 0; j < grups.length; j++) {
                 grups[j] = new ArrayList<>();
             }
 
             //Inserim membres fixes
-            for (Membre m : membres) {
+            for (MembreDto m : membres) {
                 if (m.getAgrupamentFixe() != null && !m.getAgrupamentFixe().isEmpty()) {
                     //Elegim un grup a l'atzar també
                     String agrupamentFixeRaw = m.getAgrupamentFixe().replaceAll("\\s+", "");
@@ -378,12 +372,12 @@ public class GrupsCooperatiusController {
             //System.out.println("Max membres fixes: "+maxMembresFixes);
 
             //Acabem d'inserir la resta de membres
-            for (Membre m : membres) {
+            for (MembreDto m : membres) {
                 if (m.getAgrupamentFixe() == null || m.getAgrupamentFixe().isEmpty()) {
                     Integer minGrup = null;
                     int index = 0;
                     int i = 0;
-                    for (List<Membre> grup : grups) {
+                    for (List<MembreDto> grup : grups) {
                         if (minGrup == null || grup.size() <= minGrup) {
                             minGrup = grup.size();
                             index = i;
@@ -454,7 +448,7 @@ public class GrupsCooperatiusController {
             }
 
             int idx = 0;
-            for (List<Membre> grup : grups) {
+            for (List<MembreDto> grup : grups) {
                 double[] grupAmics = new double[grup.size()];
                 double[] grupTeAmics = new double[grup.size()];
                 double[] grupEnemics = new double[grup.size()];
@@ -466,12 +460,12 @@ public class GrupsCooperatiusController {
                     grupTeAmics[i] = 0;
                     grupEnemics[i] = 0;
                 }
-                for (Membre membre : grup) {
+                for (MembreDto membre : grup) {
                     if (membre.getAmics() != null && membre.getAmics().size() > 0) {
                         boolean teAmic = false;
                         double numAmics = 0;
-                        for (Membre amic : membre.getAmics()) {
-                            for (Membre membreGrup : grup) {
+                        for (MembreDto amic : membre.getAmics()) {
+                            for (MembreDto membreGrup : grup) {
                                 if (amic.getNom().equals(membreGrup.getNom())) {
                                     numAmics++;
                                     teAmic = true;
@@ -490,9 +484,9 @@ public class GrupsCooperatiusController {
 
                     if (membre.getEnemics() != null && membre.getEnemics().size() > 0) {
                         double numEnemics = 0;
-                        for (Membre enemic : membre.getEnemics()) {
+                        for (MembreDto enemic : membre.getEnemics()) {
                             boolean enemicTrobat = false;
-                            for (Membre membreGrup : grup) {
+                            for (MembreDto membreGrup : grup) {
                                 if (enemic.getNom().equals(membreGrup.getNom())) {
                                     enemicTrobat = true;
                                     break;
@@ -548,19 +542,19 @@ public class GrupsCooperatiusController {
                 int membresSenseAmics = 0;
                 int membresAmbEnemics = 0;
                 for (int j = 0; j < millorsAgrupacions.length; j++) {
-                    Agrupament agrupament = new Agrupament();
+                    AgrupamentDto agrupament = new AgrupamentDto();
                     agrupament.setNumero(String.valueOf(j + 1));
                     Set membresSet = new HashSet(millorsAgrupacions[j]);
                     agrupament.setMembres(membresSet);
 
                     log.info("Grup " + (j + 1));
-                    for (Membre membre : agrupament.getMembres()) {
+                    for (MembreDto membre : agrupament.getMembres()) {
                         String result = membre.getNom();
 
                         if (membre.getAmics().size() > 0) {
                             int numAmics = 0;
-                            for (Membre amic : membre.getAmics()) {
-                                for (Membre membre2 : agrupament.getMembres()) {
+                            for (MembreDto amic : membre.getAmics()) {
+                                for (MembreDto membre2 : agrupament.getMembres()) {
                                     if (membre2.getNom().equals(amic.getNom())) {
                                         numAmics++;
                                     }
@@ -574,8 +568,8 @@ public class GrupsCooperatiusController {
 
                         if (membre.getEnemics().size() > 0) {
                             int numEnemics = 0;
-                            for (Membre enemic : membre.getEnemics()) {
-                                for (Membre membre2 : agrupament.getMembres()) {
+                            for (MembreDto enemic : membre.getEnemics()) {
+                                for (MembreDto membre2 : agrupament.getMembres()) {
                                     if (membre2.getNom().equals(enemic.getNom())) {
                                         numEnemics++;
                                     }
@@ -603,10 +597,10 @@ public class GrupsCooperatiusController {
         //Pintem els resultats
         int membresSenseAmics = 0;
         int membresAmbEnemics = 0;
-        List<Agrupament> agrupaments = new ArrayList<>();
+        List<AgrupamentDto> agrupaments = new ArrayList<>();
 
         for (int j = 0; j < millorsAgrupacions.length; j++) {
-            Agrupament agrupament = new Agrupament();
+            AgrupamentDto agrupament = new AgrupamentDto();
             agrupament.setNumero(String.valueOf(j + 1));
             Set membresSet = new HashSet(millorsAgrupacions[j]);
             agrupament.setMembres(membresSet);
@@ -614,13 +608,13 @@ public class GrupsCooperatiusController {
             agrupaments.add(agrupament);
 
             log.info("Grup " + (j + 1));
-            for (Membre membre : agrupament.getMembres()) {
+            for (MembreDto membre : agrupament.getMembres()) {
                 String result = membre.getNom();
 
                 if (membre.getAmics().size() > 0) {
                     int numAmics = 0;
-                    for (Membre amic : membre.getAmics()) {
-                        for (Membre membre2 : agrupament.getMembres()) {
+                    for (MembreDto amic : membre.getAmics()) {
+                        for (MembreDto membre2 : agrupament.getMembres()) {
                             if (membre2.getNom().equals(amic.getNom())) {
                                 numAmics++;
                             }
@@ -634,8 +628,8 @@ public class GrupsCooperatiusController {
 
                 if (membre.getEnemics().size() > 0) {
                     int numEnemics = 0;
-                    for (Membre enemic : membre.getEnemics()) {
-                        for (Membre membre2 : agrupament.getMembres()) {
+                    for (MembreDto enemic : membre.getEnemics()) {
+                        for (MembreDto membre2 : agrupament.getMembres()) {
                             if (membre2.getNom().equals(enemic.getNom())) {
                                 numEnemics++;
                             }
@@ -664,10 +658,12 @@ public class GrupsCooperatiusController {
 
     @PostMapping("/apps/grupscooperatius/mescla/desar")
     public ResponseEntity<Notificacio> saveGrupCooperatiu(@RequestBody String json, HttpServletRequest request) {
-        Claims claims = tokenManager.getClaims(request);
+        /*Claims claims = tokenManager.getClaims(request);
         String myEmail = (String) claims.get("email");
 
-        Usuari myUser = usuariService.findByEmail(myEmail);
+        Usuari myUser = usuariService.findByEmail(myEmail);*/
+        UsuariDto myUser = null;
+
 
         //PARSE JSON
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
@@ -676,7 +672,7 @@ public class GrupsCooperatiusController {
         //Grup Cooperatiu
         JsonObject jsonGrupCooperatiu = jsonObject.get("grupCooperatiu").getAsJsonObject();
 
-        GrupCooperatiu grupCooperatiu = new GrupCooperatiu();
+        GrupCooperatiuDto grupCooperatiu = new GrupCooperatiuDto();
 
         //Si ja existeix ho esborrem tot
         if (jsonGrupCooperatiu.get("id") != null && !jsonGrupCooperatiu.get("id").isJsonNull()) {
@@ -696,17 +692,17 @@ public class GrupsCooperatiusController {
         grupCooperatiu.setNom(nom);
         grupCooperatiu.setUsuari(myUser);
 
-        GrupCooperatiu grupCooperatiuSaved = grupCooperatiuService.save(grupCooperatiu);
+        GrupCooperatiuDto grupCooperatiuSaved = grupCooperatiuService.save(grupCooperatiu);
 
 
         //Items grup cooperatiu
-        List<ItemGrupCooperatiu> itemsGrupCooperatiu = new ArrayList<>();
+        List<ItemGrupCooperatiuDto> itemsGrupCooperatiu = new ArrayList<>();
         JsonArray jsonItemsGrupCooperatiu = jsonGrupCooperatiu.get("itemsGrupCooperatiu").getAsJsonArray();
         for (JsonElement jsonItemGrupCooperatiu : jsonItemsGrupCooperatiu) {
-            Item item = itemService.getItemById(jsonItemGrupCooperatiu.getAsJsonObject().get("item").getAsJsonObject().get("id").getAsLong());
+            ItemDto item = itemService.getItemById(jsonItemGrupCooperatiu.getAsJsonObject().get("item").getAsJsonObject().get("id").getAsLong());
             Integer percentatge = jsonItemGrupCooperatiu.getAsJsonObject().get("percentatge").getAsInt();
 
-            ItemGrupCooperatiu itemGrupCooperatiu = new ItemGrupCooperatiu();
+            ItemGrupCooperatiuDto itemGrupCooperatiu = new ItemGrupCooperatiuDto();
             itemGrupCooperatiu.setGrupCooperatiu(grupCooperatiuSaved);
             itemGrupCooperatiu.setItem(item);
             itemGrupCooperatiu.setPercentatge(percentatge);
@@ -716,7 +712,7 @@ public class GrupsCooperatiusController {
 
         //Members
         grupCooperatiuSaved.getMembres().clear();
-        List<Membre> membres = new ArrayList<>();
+        List<MembreDto> membres = new ArrayList<>();
         if (jsonObject.get("members") != null && !jsonObject.get("members").isJsonNull()) {
             JsonArray jsonMembers = jsonObject.get("members").getAsJsonArray();
             for (JsonElement jsonMember : jsonMembers) {
@@ -726,12 +722,12 @@ public class GrupsCooperatiusController {
                     agrupamentFixeMembre = jsonMember.getAsJsonObject().get("agrupamentFixe").getAsString();
                 }
 
-                Membre membre = new Membre();
+                MembreDto membre = new MembreDto();
                 membre.setNom(nomMembre);
                 membre.setAgrupamentFixe(agrupamentFixeMembre);
                 membre.setGrupCooperatiu(grupCooperatiuSaved);
 
-                Membre membreSaved = membreService.save(membre);
+                MembreDto membreSaved = membreService.save(membre);
 
                 membres.add(membreSaved);
             }
@@ -740,23 +736,23 @@ public class GrupsCooperatiusController {
             //Com que els membres amics i enemics són membres també, tornem a recorrer l'array i l'adjuntem dins els membres
             //Amb els "Valors item membre" passa el mateix, desem primer el membre.
             for (JsonElement jsonMember : jsonMembers) {
-                Membre membreSaved = membres.stream().filter(m -> m.getNom().equals(jsonMember.getAsJsonObject().get("nom").getAsString())).collect(Collectors.toList()).get(0);
+                MembreDto membreSaved = membres.stream().filter(m -> m.getNom().equals(jsonMember.getAsJsonObject().get("nom").getAsString())).collect(Collectors.toList()).get(0);
 
                 //Amics i enemics
-                List<Membre> membresAmics = new ArrayList<>();
+                List<MembreDto> membresAmics = new ArrayList<>();
                 JsonArray amics = jsonMember.getAsJsonObject().get("amics").getAsJsonArray();
                 for (JsonElement amic : amics) {
                     if (membres.stream().filter(m -> m.getNom().equals(amic.getAsString())) != null && membres.stream().filter(m -> m.getNom().equals(amic.getAsString())).collect(Collectors.toList()).size() > 0) {
-                        Membre membreAmic = membres.stream().filter(m -> m.getNom().equals(amic.getAsString())).collect(Collectors.toList()).get(0);
+                        MembreDto membreAmic = membres.stream().filter(m -> m.getNom().equals(amic.getAsString())).collect(Collectors.toList()).get(0);
                         membresAmics.add(membreAmic);
                     }
                 }
 
-                List<Membre> membresEnemics = new ArrayList<>();
+                List<MembreDto> membresEnemics = new ArrayList<>();
                 JsonArray enemics = jsonMember.getAsJsonObject().get("enemics").getAsJsonArray();
                 for (JsonElement enemic : enemics) {
                     if (membres.stream().filter(m -> m.getNom().equals(enemic.getAsString())) != null && membres.stream().filter(m -> m.getNom().equals(enemic.getAsString())).collect(Collectors.toList()).size() > 0) {
-                        Membre membreEnemic = membres.stream().filter(m -> m.getNom().equals(enemic.getAsString())).collect(Collectors.toList()).get(0);
+                        MembreDto membreEnemic = membres.stream().filter(m -> m.getNom().equals(enemic.getAsString())).collect(Collectors.toList()).get(0);
                         membresEnemics.add(membreEnemic);
                     }
                 }
@@ -766,21 +762,21 @@ public class GrupsCooperatiusController {
 
 
                 //Valors Item
-                List<ValorItem> valorsItem = new ArrayList<>();
+                List<ValorItemDto> valorsItem = new ArrayList<>();
                 JsonArray jsonValorsItems = jsonMember.getAsJsonObject().get("valorsItemMembre").getAsJsonArray();
                 for (JsonElement jsonValorItem : jsonValorsItems) {
                     Long idValorItem = jsonValorItem.getAsJsonObject().get("valorItem").getAsJsonObject().get("id").getAsLong();
-                    ValorItem valorItem = valorItemService.findById(idValorItem);
+                    ValorItemDto valorItem = valorItemService.findById(idValorItem);
                     valorsItem.add(valorItem);
                 }
 
-                List<ValorItemMembre> valorsItemsMembres = new ArrayList<>();
-                for (ValorItem vi : valorsItem) {
-                    ValorItemMembre valorItemMembre = new ValorItemMembre();
+                List<ValorItemMembreDto> valorsItemsMembres = new ArrayList<>();
+                for (ValorItemDto vi : valorsItem) {
+                    ValorItemMembreDto valorItemMembre = new ValorItemMembreDto();
                     valorItemMembre.setMembre(membreSaved);
                     valorItemMembre.setValorItem(vi);
 
-                    ValorItemMembre valorItemMembreSaved = valorItemMembreService.save(valorItemMembre);
+                    ValorItemMembreDto valorItemMembreSaved = valorItemMembreService.save(valorItemMembre);
 
                     valorsItemsMembres.add(valorItemMembreSaved);
                 }
@@ -793,21 +789,21 @@ public class GrupsCooperatiusController {
 
         //Resultat (Agrupaments)
         grupCooperatiuSaved.getAgrupaments().clear();
-        List<Agrupament> agrupaments = new ArrayList<>();
+        List<AgrupamentDto> agrupaments = new ArrayList<>();
         if (jsonObject.get("resultat") != null && !jsonObject.get("resultat").isJsonNull()) {
             JsonArray jsonAgrupaments = jsonObject.get("resultat").getAsJsonArray();
             for (JsonElement jsonAgrupament : jsonAgrupaments) {
                 String numero = jsonAgrupament.getAsJsonObject().get("numero").getAsString();
 
-                Agrupament agrupament = new Agrupament();
+                AgrupamentDto agrupament = new AgrupamentDto();
                 agrupament.setNumero(numero);
                 agrupament.setGrupCooperatiu(grupCooperatiuSaved);
 
-                Agrupament agrupamentSaved = agrupamentService.save(agrupament);
+                AgrupamentDto agrupamentSaved = agrupamentService.save(agrupament);
 
                 JsonArray jsonMembres = jsonAgrupament.getAsJsonObject().get("membres").getAsJsonArray();
                 for (JsonElement jsonMember : jsonMembres) {
-                    Membre membreSaved = membres.stream().filter(m -> m.getNom().equals(jsonMember.getAsJsonObject().get("nom").getAsString())).collect(Collectors.toList()).get(0);
+                    MembreDto membreSaved = membres.stream().filter(m -> m.getNom().equals(jsonMember.getAsJsonObject().get("nom").getAsString())).collect(Collectors.toList()).get(0);
                     membreSaved.setAgrupament(agrupamentSaved);
 
                     membreService.save(membreSaved);
@@ -826,33 +822,35 @@ public class GrupsCooperatiusController {
 
 
     @GetMapping("/apps/grupscooperatius/grupscooperatiususuari")
-    public ResponseEntity<List<GrupCooperatiu>> getGrupsCooperatius(HttpServletRequest request) {
-        Claims claims = tokenManager.getClaims(request);
+    public ResponseEntity<List<GrupCooperatiuDto>> getGrupsCooperatius(HttpServletRequest request) {
+        /*Claims claims = tokenManager.getClaims(request);
         String myEmail = (String) claims.get("email");
 
-        Usuari myUser = usuariService.findByEmail(myEmail);
+        Usuari myUser = usuariService.findByEmail(myEmail);*/
+        UsuariDto myUser = null;
 
-        List<GrupCooperatiu> grupsCooperatiusUsuari = grupCooperatiuService.findAllByUsuari(myUser);
+        List<GrupCooperatiuDto> grupsCooperatiusUsuari = grupCooperatiuService.findAllByUsuari(myUser);
 
         return new ResponseEntity<>(grupsCooperatiusUsuari, HttpStatus.OK);
     }
 
     @GetMapping("/apps/grupscooperatius/grupcooperatiu/{id}")
-    public ResponseEntity<GrupCooperatiu> getGrupCooperatiu(@PathVariable("id") String idGrupCooperatiu, HttpServletRequest request) {
-        Claims claims = tokenManager.getClaims(request);
+    public ResponseEntity<GrupCooperatiuDto> getGrupCooperatiu(@PathVariable("id") String idGrupCooperatiu, HttpServletRequest request) {
+        /*Claims claims = tokenManager.getClaims(request);
         String myEmail = (String) claims.get("email");
 
-        Usuari myUser = usuariService.findByEmail(myEmail);
+        Usuari myUser = usuariService.findByEmail(myEmail);*/
+        UsuariDto myUser = null;
 
-        List<GrupCooperatiu> grupsCooperatiusUsuari = grupCooperatiuService.findAllByUsuari(myUser);
+        List<GrupCooperatiuDto> grupsCooperatiusUsuari = grupCooperatiuService.findAllByUsuari(myUser);
 
         //Dels grups cooperatius de l'usuari agafem el que tingui la ID passada per paràmtre
-        GrupCooperatiu grupCooperatiu = grupsCooperatiusUsuari.stream().filter(gc -> gc.getIdgrupCooperatiu().equals(Long.valueOf(idGrupCooperatiu))).collect(Collectors.toList()).get(0);
-        List<ItemGrupCooperatiu> itemsGrupCooperatiu = itemGrupCooperatiuService.findAllByGrupCooperatiu(grupCooperatiu);
+        GrupCooperatiuDto grupCooperatiu = grupsCooperatiusUsuari.stream().filter(gc -> gc.getIdgrupCooperatiu().equals(Long.valueOf(idGrupCooperatiu))).collect(Collectors.toList()).get(0);
+        List<ItemGrupCooperatiuDto> itemsGrupCooperatiu = itemGrupCooperatiuService.findAllByGrupCooperatiu(grupCooperatiu);
         itemsGrupCooperatiu.sort(Comparator.comparing(a -> a.getItem().getIditem()));
         grupCooperatiu.setItemsGrupsCooperatius(new TreeSet<>(itemsGrupCooperatiu));
 
-        for (Membre membre : grupCooperatiu.getMembres()) {
+        for (MembreDto membre : grupCooperatiu.getMembres()) {
             membre.setValorsItemMembre(new TreeSet<>(membre.getValorsItemMembre()));
         }
 
@@ -884,7 +882,7 @@ public class GrupsCooperatiusController {
             }
         }*/
 
-        List<Agrupament> agrupaments = agrupamentService.findAllByGrupCooperatiu(grupCooperatiu);
+        List<AgrupamentDto> agrupaments = agrupamentService.findAllByGrupCooperatiu(grupCooperatiu);
         grupCooperatiu.setAgrupaments(new HashSet<>(agrupaments));
 
         return new ResponseEntity<>(grupCooperatiu, HttpStatus.OK);
@@ -892,25 +890,27 @@ public class GrupsCooperatiusController {
 
     /*-- ITEMS --*/
     @GetMapping("/apps/grupscooperatius/items")
-    public ResponseEntity<List<Item>> getItems(HttpServletRequest request) {
-        Claims claims = tokenManager.getClaims(request);
+    public ResponseEntity<List<ItemDto>> getItems(HttpServletRequest request) {
+        /*Claims claims = tokenManager.getClaims(request);
         String myEmail = (String) claims.get("email");
 
-        Usuari myUser = usuariService.findByEmail(myEmail);
+        Usuari myUser = usuariService.findByEmail(myEmail);*/
+        UsuariDto myUser = null;
 
-        List<Item> items = itemService.findAllByUsuari(myUser);
+        List<ItemDto> items = itemService.findAllByUsuari(myUser);
 
         return new ResponseEntity<>(items, HttpStatus.OK);
     }
 
     @GetMapping("/apps/grupscooperatius/item/{id}")
-    public ResponseEntity<Item> getItemGrupCooperatiu(@PathVariable("id") String iditem, HttpServletRequest request) throws GeneralSecurityException, IOException {
-        Claims claims = tokenManager.getClaims(request);
+    public ResponseEntity<ItemDto> getItemGrupCooperatiu(@PathVariable("id") String iditem, HttpServletRequest request) throws GeneralSecurityException, IOException {
+        /*Claims claims = tokenManager.getClaims(request);
         String myEmail = (String) claims.get("email");
 
-        Usuari myUser = usuariService.findByEmail(myEmail);
+        Usuari myUser = usuariService.findByEmail(myEmail);*/
+        UsuariDto myUser = null;
 
-        Item item = itemService.getItemById(Long.valueOf(iditem));
+        ItemDto item = itemService.getItemById(Long.valueOf(iditem));
 
         if (item != null && item.getUsuari().getIdusuari().equals(myUser.getIdusuari())) {
             return new ResponseEntity<>(item, HttpStatus.OK);
@@ -920,14 +920,15 @@ public class GrupsCooperatiusController {
     }
 
     @GetMapping("/apps/grupscooperatius/item/valors/{id}")
-    public ResponseEntity<List<ValorItem>> getValorsItemGrupCooperatiu(@PathVariable("id") String iditem, HttpServletRequest request) throws GeneralSecurityException, IOException {
-        Claims claims = tokenManager.getClaims(request);
+    public ResponseEntity<List<ValorItemDto>> getValorsItemGrupCooperatiu(@PathVariable("id") String iditem, HttpServletRequest request) throws GeneralSecurityException, IOException {
+        /*Claims claims = tokenManager.getClaims(request);
         String myEmail = (String) claims.get("email");
 
-        Usuari myUser = usuariService.findByEmail(myEmail);
+        Usuari myUser = usuariService.findByEmail(myEmail);*/
+        UsuariDto myUser = null;
 
-        Item item = itemService.getItemById(Long.valueOf(iditem));
-        List<ValorItem> valors = valorItemService.findAllValorsByItem(item);
+        ItemDto item = itemService.getItemById(Long.valueOf(iditem));
+        List<ValorItemDto> valors = valorItemService.findAllValorsByItem(item);
 
         //Seguretat
         boolean usuariCorrecte = valors.stream().allMatch(valorItem -> valorItem.getItem().getUsuari().getIdusuari().equals(myUser.getIdusuari()));
@@ -942,10 +943,11 @@ public class GrupsCooperatiusController {
     @PostMapping("/apps/grupscooperatius/item/desar")
     @Transactional
     public ResponseEntity<Notificacio> desarItemGrupCooperatiu(@RequestBody String json, HttpServletRequest request) throws GeneralSecurityException, IOException {
-        Claims claims = tokenManager.getClaims(request);
+        /*Claims claims = tokenManager.getClaims(request);
         String myEmail = (String) claims.get("email");
 
-        Usuari myUser = usuariService.findByEmail(myEmail);
+        Usuari myUser = usuariService.findByEmail(myEmail);*/
+        UsuariDto myUser = null;
 
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
 
@@ -958,23 +960,23 @@ public class GrupsCooperatiusController {
 
         JsonArray valors = jsonObject.get("valorsItem").getAsJsonArray();
 
-        Item item;
+        ItemDto item;
 
         if (idItem != null) {
             item = itemService.getItemById(idItem);
         } else {
-            item = new Item();
+            item = new ItemDto();
         }
 
         item.setUsuari(myUser);
         item.setNom(nomItem);
 
-        Item i = itemService.save(item);
+        ItemDto i = itemService.save(item);
 
         //Valors
-        List<ValorItem> valorsItem = new ArrayList<>();
+        List<ValorItemDto> valorsItem = new ArrayList<>();
         for (JsonElement valor : valors) {
-            ValorItem vi = new ValorItem();
+            ValorItemDto vi = new ValorItemDto();
             vi.setValor(valor.getAsJsonObject().get("valor").getAsString());
             vi.setPes(valor.getAsJsonObject().get("pes").getAsInt());
             vi.setItem(i);
@@ -986,7 +988,7 @@ public class GrupsCooperatiusController {
         itemService.deleteAllValorsByItem(i);
 
         //Creem els nous
-        for (ValorItem valorItem : valorsItem) {
+        for (ValorItemDto valorItem : valorsItem) {
             valorItemService.save(valorItem);
         }
 
