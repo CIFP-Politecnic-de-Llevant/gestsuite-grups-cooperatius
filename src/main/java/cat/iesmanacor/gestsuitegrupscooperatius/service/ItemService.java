@@ -33,10 +33,6 @@ public class ItemService {
         PropertyMap<ItemDto, Item> mapper = new PropertyMap<>() {
             protected void configure() {
                 map().setUsuari(source.getUsuari().getIdusuari());
-                map().getValorItems().stream().map(valorItem -> {
-                    valorItem.setItem(null);
-                    return valorItem;
-                });
             }
         };
         modelMapper.addMappings(mapper);
@@ -54,7 +50,11 @@ public class ItemService {
         //Ha de ser findById i no getById perquè getById és Lazy
         Item item = itemRepository.findById(id).get();
         //return itemRepository.getById(id);
-        return modelMapper.map(item,ItemDto.class);
+        ItemDto itemDto = modelMapper.map(item,ItemDto.class);
+        UsuariDto usuariDto = new UsuariDto();
+        usuariDto.setIdusuari(item.getUsuari());
+        itemDto.setUsuari(usuariDto);
+        return itemDto;
     }
 
     public List<ItemDto> findAllByUsuari(UsuariDto usuari){

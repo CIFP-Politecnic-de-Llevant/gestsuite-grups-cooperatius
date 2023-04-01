@@ -7,6 +7,7 @@ import cat.iesmanacor.gestsuitegrupscooperatius.model.Item;
 import cat.iesmanacor.gestsuitegrupscooperatius.model.ValorItem;
 import cat.iesmanacor.gestsuitegrupscooperatius.repository.ValorItemRepository;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,13 @@ public class ValorItemService {
 
     public List<ValorItemDto> findAllValorsByItem(ItemDto itemDto){
         ModelMapper modelMapper = new ModelMapper();
+        PropertyMap<ItemDto, Item> mapper = new PropertyMap<>() {
+            protected void configure() {
+                map().setUsuari(source.getUsuari().getIdusuari());
+            }
+        };
+        modelMapper.addMappings(mapper);
+
         Item item = modelMapper.map(itemDto, Item.class);
 
         return valorItemRepository.findAllByItem(item).stream().map(valorItem->modelMapper.map(valorItem, ValorItemDto.class)).collect(Collectors.toList());

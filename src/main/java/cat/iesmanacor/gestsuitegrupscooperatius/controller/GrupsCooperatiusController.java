@@ -906,7 +906,7 @@ public class GrupsCooperatiusController {
         List<ValorItemDto> valors = valorItemService.findAllValorsByItem(item);
 
         //Seguretat
-        boolean usuariCorrecte = valors.stream().allMatch(valorItem -> valorItem.getItem().getUsuari().getIdusuari().equals(myUser.getIdusuari()));
+        boolean usuariCorrecte = item.getUsuari().getIdusuari().equals(myUser.getIdusuari());
 
         if (valors != null && usuariCorrecte) {
             return new ResponseEntity<>(valors, HttpStatus.OK);
