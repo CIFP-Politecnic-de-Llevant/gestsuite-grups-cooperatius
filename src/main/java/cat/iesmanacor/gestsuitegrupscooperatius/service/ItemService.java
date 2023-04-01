@@ -7,6 +7,9 @@ import cat.iesmanacor.gestsuitegrupscooperatius.model.Item;
 import cat.iesmanacor.gestsuitegrupscooperatius.repository.ItemRepository;
 import cat.iesmanacor.gestsuitegrupscooperatius.repository.ValorItemRepository;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
+import org.modelmapper.convention.MatchingStrategies;
+import org.modelmapper.spi.MatchingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,15 +18,33 @@ import java.util.stream.Collectors;
 
 @Service
 public class ItemService {
-    @Autowired
-    private ItemRepository itemRepository;
+    private final ItemRepository itemRepository;
+    private final ValorItemRepository valorItemRepository;
 
     @Autowired
-    private ValorItemRepository valorItemRepository;
+    public ItemService(ItemRepository itemRepository, ValorItemRepository valorItemRepository) {
+        this.itemRepository = itemRepository;
+        this.valorItemRepository = valorItemRepository;
+    }
 
     public ItemDto save(ItemDto itemDto) {
         ModelMapper modelMapper = new ModelMapper();
+
+        PropertyMap<ItemDto, Item> mapper = new PropertyMap<>() {
+            protected void configure() {
+                map().setUsuari(source.getUsuari().getIdusuari());
+                map().getValorItems().stream().map(valorItem -> {
+                    valorItem.setItem(null);
+                    return valorItem;
+                });
+            }
+        };
+        modelMapper.addMappings(mapper);
         Item item = modelMapper.map(itemDto,Item.class);
+
+        //Afegeim l'usuari manualment perquè el mapeig no és igual Usuari i UsuariDTO
+        item.setUsuari(itemDto.getUsuari().getIdusuari());
+
         Item itemSaved = itemRepository.save(item);
         return modelMapper.map(itemSaved,ItemDto.class);
     }

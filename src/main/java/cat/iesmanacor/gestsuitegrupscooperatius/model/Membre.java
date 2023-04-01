@@ -11,8 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "im_app_grups_cooperatius_membre")
-@EqualsAndHashCode(exclude={"agrupament","valorsItemMembre","amics","enemics","grupCooperatiu"})
+@Table(name = "im_membre")
 public @Data class Membre {
     @Id
     @Column(name = "idmembre")

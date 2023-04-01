@@ -18,8 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,35 +25,30 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GrupsCooperatiusController {
 
-    @Autowired
-    private CoreRestClient coreRestClient;
+    private final CoreRestClient coreRestClient;
+    private final ItemService itemService;
+    private final ValorItemService valorItemService;
+    private final ValorItemMembreService valorItemMembreService;
+    private final GrupCooperatiuService grupCooperatiuService;
+    private final ItemGrupCooperatiuService itemGrupCooperatiuService;
+    private final MembreService membreService;
+    private final AgrupamentService agrupamentService;
+    private final MathService mathService;
+    private final Gson gson;
 
     @Autowired
-    private ItemService itemService;
-
-    @Autowired
-    private ValorItemService valorItemService;
-
-    @Autowired
-    private ValorItemMembreService valorItemMembreService;
-
-    @Autowired
-    private GrupCooperatiuService grupCooperatiuService;
-
-    @Autowired
-    private ItemGrupCooperatiuService itemGrupCooperatiuService;
-
-    @Autowired
-    private MembreService membreService;
-
-    @Autowired
-    private AgrupamentService agrupamentService;
-
-    @Autowired
-    private MathService mathService;
-
-    @Autowired
-    private Gson gson;
+    public GrupsCooperatiusController(CoreRestClient coreRestClient, ItemService itemService, ValorItemService valorItemService, ValorItemMembreService valorItemMembreService, GrupCooperatiuService grupCooperatiuService, ItemGrupCooperatiuService itemGrupCooperatiuService, MembreService membreService, AgrupamentService agrupamentService, MathService mathService, Gson gson) {
+        this.coreRestClient = coreRestClient;
+        this.itemService = itemService;
+        this.valorItemService = valorItemService;
+        this.valorItemMembreService = valorItemMembreService;
+        this.grupCooperatiuService = grupCooperatiuService;
+        this.itemGrupCooperatiuService = itemGrupCooperatiuService;
+        this.membreService = membreService;
+        this.agrupamentService = agrupamentService;
+        this.mathService = mathService;
+        this.gson = gson;
+    }
 
     /*-- GRUPS COOPERATIUS --*/
     @PostMapping("/aleatori")
@@ -838,7 +831,7 @@ public class GrupsCooperatiusController {
         //Dels grups cooperatius de l'usuari agafem el que tingui la ID passada per paràmtre
         GrupCooperatiuDto grupCooperatiu = grupsCooperatiusUsuari.stream().filter(gc -> gc.getIdgrupCooperatiu().equals(Long.valueOf(idGrupCooperatiu))).collect(Collectors.toList()).get(0);
         List<ItemGrupCooperatiuDto> itemsGrupCooperatiu = itemGrupCooperatiuService.findAllByGrupCooperatiu(grupCooperatiu);
-        itemsGrupCooperatiu.sort(Comparator.comparing(a -> a.getItem().getIditem()));
+        itemsGrupCooperatiu.sort(Comparator.comparing(a -> a.getItem().getIdItem()));
         grupCooperatiu.setItemsGrupsCooperatius(new TreeSet<>(itemsGrupCooperatiu));
 
         for (MembreDto membre : grupCooperatiu.getMembres()) {

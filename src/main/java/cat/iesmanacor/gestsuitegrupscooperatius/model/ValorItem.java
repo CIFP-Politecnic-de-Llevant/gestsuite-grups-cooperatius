@@ -10,8 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "im_app_grups_cooperatius_valor_item")
-@EqualsAndHashCode(exclude="item")
+@Table(name = "im_valor_item")
 public @Data class ValorItem {
     @Id
     @Column(name = "idvalor_item")
