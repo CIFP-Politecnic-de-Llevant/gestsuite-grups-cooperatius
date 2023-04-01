@@ -2,11 +2,14 @@ package cat.iesmanacor.gestsuitegrupscooperatius.service;
 
 import cat.iesmanacor.gestsuitegrupscooperatius.dto.AgrupamentDto;
 import cat.iesmanacor.gestsuitegrupscooperatius.dto.GrupCooperatiuDto;
+import cat.iesmanacor.gestsuitegrupscooperatius.dto.ItemDto;
 import cat.iesmanacor.gestsuitegrupscooperatius.dto.gestib.UsuariDto;
 import cat.iesmanacor.gestsuitegrupscooperatius.model.GrupCooperatiu;
+import cat.iesmanacor.gestsuitegrupscooperatius.model.Item;
 import cat.iesmanacor.gestsuitegrupscooperatius.repository.GrupCooperatiuRepository;
 import cat.iesmanacor.gestsuitegrupscooperatius.restclient.CoreRestClient;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,13 @@ public class GrupCooperatiuService {
 
     public GrupCooperatiuDto save(GrupCooperatiuDto grupCooperatiuDto) {
         ModelMapper modelMapper = new ModelMapper();
+        PropertyMap<GrupCooperatiuDto, GrupCooperatiu> mapperGrupCooperatiu = new PropertyMap<>() {
+            protected void configure() {
+                map().setUsuari(source.getUsuari().getIdusuari());
+            }
+        };
+        modelMapper.addMappings(mapperGrupCooperatiu);
+
         GrupCooperatiu grupCooperatiu = modelMapper.map(grupCooperatiuDto,GrupCooperatiu.class);
         GrupCooperatiu grupCooperatiuSaved = grupCooperatiuRepository.save(grupCooperatiu);
         return modelMapper.map(grupCooperatiuSaved,GrupCooperatiuDto.class);

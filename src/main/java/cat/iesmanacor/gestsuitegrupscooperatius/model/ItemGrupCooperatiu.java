@@ -14,7 +14,7 @@ import java.util.Set;
 //Alerta, si fem un new HashSet i posem que exclogui item i grup cooperatiu, a un grup cooperatiu amb 3 ítems només n'agafarà un!
 //@EqualsAndHashCode(exclude={"item","grupCooperatiu"})
 @IdClass(ItemGrupCooperatiuId.class)
-public @Data class ItemGrupCooperatiu implements Comparable<ItemGrupCooperatiu> {
+public @Data class ItemGrupCooperatiu {
 
     @Id
     @ManyToOne
@@ -31,9 +31,4 @@ public @Data class ItemGrupCooperatiu implements Comparable<ItemGrupCooperatiu> 
 
     @Column(name = "percentatge", nullable = false)
     private Integer percentatge;
-
-    @Override
-    public int compareTo(ItemGrupCooperatiu o) {
-        return this.getItem().getIdItem().compareTo(o.getItem().getIdItem());
-    }
 }

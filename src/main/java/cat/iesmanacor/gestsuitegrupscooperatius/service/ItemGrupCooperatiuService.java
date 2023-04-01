@@ -7,6 +7,7 @@ import cat.iesmanacor.gestsuitegrupscooperatius.model.GrupCooperatiu;
 import cat.iesmanacor.gestsuitegrupscooperatius.model.ItemGrupCooperatiu;
 import cat.iesmanacor.gestsuitegrupscooperatius.repository.ItemGrupCooperatiuRepository;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,14 @@ public class ItemGrupCooperatiuService {
 
     public ItemGrupCooperatiuDto save(ItemGrupCooperatiuDto itemGrupCooperatiuDto) {
         ModelMapper modelMapper = new ModelMapper();
+        PropertyMap<ItemGrupCooperatiuDto, ItemGrupCooperatiu> mapperItemGrupCoopeatiu = new PropertyMap<>() {
+            protected void configure() {
+                map().getGrupCooperatiu().setUsuari(source.getGrupCooperatiu().getUsuari().getIdusuari());
+                map().getItem().setUsuari(source.getItem().getUsuari().getIdusuari());
+            }
+        };
+        modelMapper.addMappings(mapperItemGrupCoopeatiu);
+
         ItemGrupCooperatiu itemGrupCooperatiu = modelMapper.map(itemGrupCooperatiuDto,ItemGrupCooperatiu.class);
         ItemGrupCooperatiu itemGrupCooperatiuSaved = itemGrupCooperatiuRepository.save(itemGrupCooperatiu);
         return modelMapper.map(itemGrupCooperatiuSaved,ItemGrupCooperatiuDto.class);
