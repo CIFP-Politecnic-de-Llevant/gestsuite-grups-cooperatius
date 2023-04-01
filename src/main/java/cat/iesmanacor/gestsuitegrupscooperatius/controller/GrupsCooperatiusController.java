@@ -657,12 +657,9 @@ public class GrupsCooperatiusController {
     }
 
     @PostMapping("/mescla/desar")
-    public ResponseEntity<Notificacio> saveGrupCooperatiu(@RequestBody String json, HttpServletRequest request) {
-        /*Claims claims = tokenManager.getClaims(request);
-        String myEmail = (String) claims.get("email");
-
-        Usuari myUser = usuariService.findByEmail(myEmail);*/
-        UsuariDto myUser = null;
+    public ResponseEntity<Notificacio> saveGrupCooperatiu(@RequestBody String json, HttpServletRequest request) throws Exception {
+        ResponseEntity<UsuariDto> myUserResponse = coreRestClient.getProfile();
+        UsuariDto myUser = myUserResponse.getBody();
 
 
         //PARSE JSON
@@ -822,12 +819,9 @@ public class GrupsCooperatiusController {
 
 
     @GetMapping("/grupscooperatiususuari")
-    public ResponseEntity<List<GrupCooperatiuDto>> getGrupsCooperatius(HttpServletRequest request) {
-        /*Claims claims = tokenManager.getClaims(request);
-        String myEmail = (String) claims.get("email");
-
-        Usuari myUser = usuariService.findByEmail(myEmail);*/
-        UsuariDto myUser = null;
+    public ResponseEntity<List<GrupCooperatiuDto>> getGrupsCooperatius(HttpServletRequest request) throws Exception {
+        ResponseEntity<UsuariDto> myUserResponse = coreRestClient.getProfile();
+        UsuariDto myUser = myUserResponse.getBody();
 
         List<GrupCooperatiuDto> grupsCooperatiusUsuari = grupCooperatiuService.findAllByUsuari(myUser);
 
@@ -835,12 +829,9 @@ public class GrupsCooperatiusController {
     }
 
     @GetMapping("/grupcooperatiu/{id}")
-    public ResponseEntity<GrupCooperatiuDto> getGrupCooperatiu(@PathVariable("id") String idGrupCooperatiu, HttpServletRequest request) {
-        /*Claims claims = tokenManager.getClaims(request);
-        String myEmail = (String) claims.get("email");
-
-        Usuari myUser = usuariService.findByEmail(myEmail);*/
-        UsuariDto myUser = null;
+    public ResponseEntity<GrupCooperatiuDto> getGrupCooperatiu(@PathVariable("id") String idGrupCooperatiu, HttpServletRequest request) throws Exception {
+        ResponseEntity<UsuariDto> myUserResponse = coreRestClient.getProfile();
+        UsuariDto myUser = myUserResponse.getBody();
 
         List<GrupCooperatiuDto> grupsCooperatiusUsuari = grupCooperatiuService.findAllByUsuari(myUser);
 
@@ -890,12 +881,9 @@ public class GrupsCooperatiusController {
 
     /*-- ITEMS --*/
     @GetMapping("/items")
-    public ResponseEntity<List<ItemDto>> getItems(HttpServletRequest request) {
-        /*Claims claims = tokenManager.getClaims(request);
-        String myEmail = (String) claims.get("email");
-
-        Usuari myUser = usuariService.findByEmail(myEmail);*/
-        UsuariDto myUser = null;
+    public ResponseEntity<List<ItemDto>> getItems(HttpServletRequest request) throws Exception {
+        ResponseEntity<UsuariDto> myUserResponse = coreRestClient.getProfile();
+        UsuariDto myUser = myUserResponse.getBody();
 
         List<ItemDto> items = itemService.findAllByUsuari(myUser);
 
@@ -903,12 +891,9 @@ public class GrupsCooperatiusController {
     }
 
     @GetMapping("/item/{id}")
-    public ResponseEntity<ItemDto> getItemGrupCooperatiu(@PathVariable("id") String iditem, HttpServletRequest request) throws GeneralSecurityException, IOException {
-        /*Claims claims = tokenManager.getClaims(request);
-        String myEmail = (String) claims.get("email");
-
-        Usuari myUser = usuariService.findByEmail(myEmail);*/
-        UsuariDto myUser = null;
+    public ResponseEntity<ItemDto> getItemGrupCooperatiu(@PathVariable("id") String iditem, HttpServletRequest request) throws Exception {
+        ResponseEntity<UsuariDto> myUserResponse = coreRestClient.getProfile();
+        UsuariDto myUser = myUserResponse.getBody();
 
         ItemDto item = itemService.getItemById(Long.valueOf(iditem));
 
@@ -920,12 +905,9 @@ public class GrupsCooperatiusController {
     }
 
     @GetMapping("/item/valors/{id}")
-    public ResponseEntity<List<ValorItemDto>> getValorsItemGrupCooperatiu(@PathVariable("id") String iditem, HttpServletRequest request) throws GeneralSecurityException, IOException {
-        /*Claims claims = tokenManager.getClaims(request);
-        String myEmail = (String) claims.get("email");
-
-        Usuari myUser = usuariService.findByEmail(myEmail);*/
-        UsuariDto myUser = null;
+    public ResponseEntity<List<ValorItemDto>> getValorsItemGrupCooperatiu(@PathVariable("id") String iditem, HttpServletRequest request) throws Exception {
+        ResponseEntity<UsuariDto> myUserResponse = coreRestClient.getProfile();
+        UsuariDto myUser = myUserResponse.getBody();
 
         ItemDto item = itemService.getItemById(Long.valueOf(iditem));
         List<ValorItemDto> valors = valorItemService.findAllValorsByItem(item);
@@ -942,12 +924,9 @@ public class GrupsCooperatiusController {
 
     @PostMapping("/item/desar")
     @Transactional
-    public ResponseEntity<Notificacio> desarItemGrupCooperatiu(@RequestBody String json, HttpServletRequest request) throws GeneralSecurityException, IOException {
-        /*Claims claims = tokenManager.getClaims(request);
-        String myEmail = (String) claims.get("email");
-
-        Usuari myUser = usuariService.findByEmail(myEmail);*/
-        UsuariDto myUser = null;
+    public ResponseEntity<Notificacio> desarItemGrupCooperatiu(@RequestBody String json, HttpServletRequest request) throws Exception {
+        ResponseEntity<UsuariDto> myUserResponse = coreRestClient.getProfile();
+        UsuariDto myUser = myUserResponse.getBody();
 
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
 

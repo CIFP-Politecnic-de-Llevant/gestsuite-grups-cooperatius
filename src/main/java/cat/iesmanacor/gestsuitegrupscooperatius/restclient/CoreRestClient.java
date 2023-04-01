@@ -9,8 +9,8 @@ import cat.iesmanacor.gestsuitegrupscooperatius.dto.gestib.UsuariDto;
 public interface CoreRestClient {
 
     //USUARIS
-    @GetMapping("/usuaris/profile/{id}")
-    ResponseEntity<UsuariDto> getProfile(@PathVariable("id") String idUsuari) throws Exception;
+    @GetMapping("/usuaris/profile")
+    ResponseEntity<UsuariDto> getProfile() throws Exception;
 
 
 }
