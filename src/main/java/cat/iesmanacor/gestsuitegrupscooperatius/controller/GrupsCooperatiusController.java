@@ -58,7 +58,7 @@ public class GrupsCooperatiusController {
     private Gson gson;
 
     /*-- GRUPS COOPERATIUS --*/
-    @PostMapping("/apps/grupscooperatius/aleatori")
+    @PostMapping("/aleatori")
     public ResponseEntity<?> getMesclaGrupsAleatoria(@RequestBody String json) {
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
 
@@ -163,7 +163,7 @@ public class GrupsCooperatiusController {
     }
 
 
-    @PostMapping("/apps/grupscooperatius/genetica")
+    @PostMapping("/genetica")
     public ResponseEntity<?> getMesclaGrupsGenetica(@RequestBody String json) {
         //int numIteracions = 10;
 
@@ -656,7 +656,7 @@ public class GrupsCooperatiusController {
         return agrupaments;
     }
 
-    @PostMapping("/apps/grupscooperatius/mescla/desar")
+    @PostMapping("/mescla/desar")
     public ResponseEntity<Notificacio> saveGrupCooperatiu(@RequestBody String json, HttpServletRequest request) {
         /*Claims claims = tokenManager.getClaims(request);
         String myEmail = (String) claims.get("email");
@@ -821,7 +821,7 @@ public class GrupsCooperatiusController {
     }
 
 
-    @GetMapping("/apps/grupscooperatius/grupscooperatiususuari")
+    @GetMapping("/grupscooperatiususuari")
     public ResponseEntity<List<GrupCooperatiuDto>> getGrupsCooperatius(HttpServletRequest request) {
         /*Claims claims = tokenManager.getClaims(request);
         String myEmail = (String) claims.get("email");
@@ -834,7 +834,7 @@ public class GrupsCooperatiusController {
         return new ResponseEntity<>(grupsCooperatiusUsuari, HttpStatus.OK);
     }
 
-    @GetMapping("/apps/grupscooperatius/grupcooperatiu/{id}")
+    @GetMapping("/grupcooperatiu/{id}")
     public ResponseEntity<GrupCooperatiuDto> getGrupCooperatiu(@PathVariable("id") String idGrupCooperatiu, HttpServletRequest request) {
         /*Claims claims = tokenManager.getClaims(request);
         String myEmail = (String) claims.get("email");
@@ -889,7 +889,7 @@ public class GrupsCooperatiusController {
     }
 
     /*-- ITEMS --*/
-    @GetMapping("/apps/grupscooperatius/items")
+    @GetMapping("/items")
     public ResponseEntity<List<ItemDto>> getItems(HttpServletRequest request) {
         /*Claims claims = tokenManager.getClaims(request);
         String myEmail = (String) claims.get("email");
@@ -902,7 +902,7 @@ public class GrupsCooperatiusController {
         return new ResponseEntity<>(items, HttpStatus.OK);
     }
 
-    @GetMapping("/apps/grupscooperatius/item/{id}")
+    @GetMapping("/item/{id}")
     public ResponseEntity<ItemDto> getItemGrupCooperatiu(@PathVariable("id") String iditem, HttpServletRequest request) throws GeneralSecurityException, IOException {
         /*Claims claims = tokenManager.getClaims(request);
         String myEmail = (String) claims.get("email");
@@ -919,7 +919,7 @@ public class GrupsCooperatiusController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("/apps/grupscooperatius/item/valors/{id}")
+    @GetMapping("/item/valors/{id}")
     public ResponseEntity<List<ValorItemDto>> getValorsItemGrupCooperatiu(@PathVariable("id") String iditem, HttpServletRequest request) throws GeneralSecurityException, IOException {
         /*Claims claims = tokenManager.getClaims(request);
         String myEmail = (String) claims.get("email");
@@ -940,7 +940,7 @@ public class GrupsCooperatiusController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @PostMapping("/apps/grupscooperatius/item/desar")
+    @PostMapping("/item/desar")
     @Transactional
     public ResponseEntity<Notificacio> desarItemGrupCooperatiu(@RequestBody String json, HttpServletRequest request) throws GeneralSecurityException, IOException {
         /*Claims claims = tokenManager.getClaims(request);
