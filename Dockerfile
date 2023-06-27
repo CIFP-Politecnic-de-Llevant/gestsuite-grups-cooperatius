@@ -1,12 +1,26 @@
-FROM maven:3.9.0-eclipse-temurin-17-alpine
-# FROM openjdk:11-jdk-slim
+FROM maven:3-amazoncorretto-17 as develop-stage-grupscooperatius
+WORKDIR /app
 
+COPY /config/iesmanacor-e0d4f26d9c2c.json /resources/iesmanacor-e0d4f26d9c2c.json
+
+COPY /api/gestsuite-common/ /external/
+RUN mvn clean compile install -f /external/pom.xml
+
+COPY /api/gestsuite-grups-cooperatius .
+RUN mvn clean package -f pom.xml
+ENTRYPOINT ["mvn","spring-boot:run","-f","pom.xml"]
+
+FROM maven:3-amazoncorretto-17 as build-stage-grupscooperatius
 WORKDIR /resources
-COPY ../gestsuite-common/target/common-0.0.1-SNAPSHOT.jar .
-COPY ../gestsuite-common/pom.xml .
-RUN mvn install:install-file -Dfile=/resources/common-0.0.1-SNAPSHOT.jar -DpomFile=/resources/pom.xml
-# WORKDIR /app
-# RUN ./app/mvnw install:install-file -Dfile=/resources/common-0.0.1-SNAPSHOT.jar -DpomFile=/resources/pom.xml
+
+COPY /api/gestsuite-common/ /external/
+RUN mvn clean compile install -f /external/pom.xml
 
 
-# RUN ./mvnw clean compile install package
+COPY /api/gestsuite-grups-cooperatius .
+RUN mvn clean package -f pom.xml
+
+FROM amazoncorretto:17-alpine-jdk as production-stage-grupscooperatius
+COPY --from=build-stage-grupscooperatius /resources/target/grups-cooperatius-0.0.1-SNAPSHOT.jar grupscooperatius.jar
+COPY /config/iesmanacor-e0d4f26d9c2c.json /resources/iesmanacor-e0d4f26d9c2c.json
+ENTRYPOINT ["java","-jar","/grupscooperatius.jar"]
