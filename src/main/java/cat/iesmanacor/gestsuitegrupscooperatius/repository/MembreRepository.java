@@ -1,5 +1,6 @@
 package cat.iesmanacor.gestsuitegrupscooperatius.repository;
 
+import cat.iesmanacor.gestsuitegrupscooperatius.model.Agrupament;
 import cat.iesmanacor.gestsuitegrupscooperatius.model.GrupCooperatiu;
 import cat.iesmanacor.gestsuitegrupscooperatius.model.Membre;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,5 @@ import java.util.List;
 public interface MembreRepository extends JpaRepository<Membre, Long> {
     void deleteAllByGrupCooperatiu(GrupCooperatiu grupCooperatiu);
     List<Membre> findAllByGrupCooperatiu(GrupCooperatiu grupCooperatiu);
+    List<Membre> findAllByAgrupament(Agrupament agrupament);
 }

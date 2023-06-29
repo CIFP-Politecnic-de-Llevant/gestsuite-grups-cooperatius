@@ -861,41 +861,21 @@ public class GrupsCooperatiusController {
         membresGrupCooperatiu.sort(Comparator.comparing(a -> a.getNom()));
         grupCooperatiu.setMembres(new TreeSet<>(membresGrupCooperatiu));
 
-        for (MembreDto membre : grupCooperatiu.getMembres()) {
-            membre.setValorsItemMembre(new TreeSet<>(membre.getValorsItemMembre()));
-        }
+        grupCooperatiu.getMembres().forEach(m->{
+            m.setValorsItemMembre(new TreeSet<>(valorItemMembreService.findAllByMembre(m)));
+        });
 
         System.out.println("Grup cooperatiu membres: "+grupCooperatiu.getMembres().size());
 
-        /*for(Membre membre:grupCooperatiu.getMembres()){
-                ArrayList<ValorItemMembre> valorsItemMembre = new ArrayList<>(membre.getValorsItemMembre());
-                valorsItemMembre.sort(Comparator.comparing(a -> a.getValorItem().getItem().getIditem()));
-
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            System.out.println("------------------------------");
-            System.out.println(membre.getNom());
-                for(ValorItemMembre valorItemMembre: valorsItemMembre){
-                    System.out.println("valor item membre"+valorItemMembre.getValorItem().getItem().getIditem()+" - "+valorItemMembre.getValorItem().getItem().getNom());
-                }
-
-                membre.setValorsItemMembre(new TreeSet<>(valorsItemMembre));
-        }*/
-
-        /*
-        for(Membre membre:grupCooperatiu.getMembres()){
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            System.out.println("------------------------------");
-            System.out.println(membre.getNom());
-            for(ValorItemMembre valorItemMembre: membre.getValorsItemMembre()){
-                System.out.println("valor item membre"+valorItemMembre.getValorItem().getItem().getIditem()+" - "+valorItemMembre.getValorItem().getItem().getNom());
-            }
-        }*/
-
         List<AgrupamentDto> agrupaments = agrupamentService.findAllByGrupCooperatiu(grupCooperatiu);
+        agrupaments.forEach(a -> {
+            List<MembreDto> membresAgrupament = membreService.findAllByAgrupament(a);
+
+            membresAgrupament.forEach(m->{
+                m.setValorsItemMembre(new TreeSet<>(valorItemMembreService.findAllByMembre(m)));
+            });
+            a.setMembres(new TreeSet<>(membresAgrupament));
+        });
         grupCooperatiu.setAgrupaments(new HashSet<>(agrupaments));
 
         return new ResponseEntity<>(grupCooperatiu, HttpStatus.OK);

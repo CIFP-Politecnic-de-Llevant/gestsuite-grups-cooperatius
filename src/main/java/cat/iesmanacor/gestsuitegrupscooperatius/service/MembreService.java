@@ -1,7 +1,9 @@
 package cat.iesmanacor.gestsuitegrupscooperatius.service;
 
+import cat.iesmanacor.gestsuitegrupscooperatius.dto.AgrupamentDto;
 import cat.iesmanacor.gestsuitegrupscooperatius.dto.GrupCooperatiuDto;
 import cat.iesmanacor.gestsuitegrupscooperatius.dto.MembreDto;
+import cat.iesmanacor.gestsuitegrupscooperatius.model.Agrupament;
 import cat.iesmanacor.gestsuitegrupscooperatius.model.GrupCooperatiu;
 import cat.iesmanacor.gestsuitegrupscooperatius.model.Membre;
 import cat.iesmanacor.gestsuitegrupscooperatius.repository.MembreRepository;
@@ -37,6 +39,13 @@ public class MembreService {
         ModelMapper modelMapper = new ModelMapper();
         GrupCooperatiu grupCooperatiu = modelMapper.map(grupCooperatiuDto,GrupCooperatiu.class);
         List<Membre> membres = membreRepository.findAllByGrupCooperatiu(grupCooperatiu);
+        return membres.stream().map(membre -> modelMapper.map(membre,MembreDto.class)).collect(Collectors.toList());
+    }
+
+    public List<MembreDto> findAllByAgrupament(AgrupamentDto agrupamentDto){
+        ModelMapper modelMapper = new ModelMapper();
+        Agrupament agrupament = modelMapper.map(agrupamentDto,Agrupament.class);
+        List<Membre> membres = membreRepository.findAllByAgrupament(agrupament);
         return membres.stream().map(membre -> modelMapper.map(membre,MembreDto.class)).collect(Collectors.toList());
     }
 
