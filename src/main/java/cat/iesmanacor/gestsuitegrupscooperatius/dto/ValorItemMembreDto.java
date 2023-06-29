@@ -12,6 +12,12 @@ public @Data class ValorItemMembreDto implements Comparable<ValorItemMembreDto> 
 
     @Override
     public int compareTo(ValorItemMembreDto o) {
+        if(this.getValorItem()==null || this.getValorItem().getItem()==null){
+            return -1;
+        }
+        if(o.getValorItem()==null || o.getValorItem().getItem()==null){
+            return 1;
+        }
         return this.getValorItem().getItem().getIdItem().compareTo(o.getValorItem().getItem().getIdItem());
     }
 }

@@ -4,6 +4,7 @@ import cat.iesmanacor.common.model.Notificacio;
 import cat.iesmanacor.common.model.NotificacioTipus;
 import cat.iesmanacor.gestsuitegrupscooperatius.dto.*;
 import cat.iesmanacor.gestsuitegrupscooperatius.dto.gestib.UsuariDto;
+import cat.iesmanacor.gestsuitegrupscooperatius.model.ValorItem;
 import cat.iesmanacor.gestsuitegrupscooperatius.restclient.CoreRestClient;
 import cat.iesmanacor.gestsuitegrupscooperatius.service.*;
 import com.google.gson.Gson;
@@ -254,6 +255,17 @@ public class GrupsCooperatiusController {
             agrupament.setMembres(a.getMembres().stream().map(m->{
                 MembreDto membre = new MembreDto();
                 membre.setNom(m.getNom());
+
+                List<ValorItemMembreDto> valorsItemMembre = new ArrayList<>();
+                m.getValorsItemMembre().forEach(v->{
+                    //Important. No afegir membre perquè membre.setValorsItemMembre de després seria recursiu
+                    ValorItemMembreDto valorItemMembreDto = new ValorItemMembreDto();
+                    valorItemMembreDto.setIdvalorItemMembre(v.getIdvalorItemMembre());
+                    valorItemMembreDto.setValorItem(v.getValorItem());
+
+                    valorsItemMembre.add(valorItemMembreDto);
+                });
+                membre.setValorsItemMembre(new TreeSet<>(valorsItemMembre));
                 return membre;
             }).collect(Collectors.toSet()));
             result.add(agrupament);
