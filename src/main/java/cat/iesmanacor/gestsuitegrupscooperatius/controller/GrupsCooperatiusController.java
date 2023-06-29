@@ -209,7 +209,6 @@ public class GrupsCooperatiusController {
 
             membre.setValorsItemMembre(new TreeSet<>(valorsItemMembre));
 
-
             if (membreJSON.getAsJsonObject().get("amics") != null && !membreJSON.getAsJsonObject().get("amics").isJsonNull()) {
                 JsonArray amicsJson = membreJSON.getAsJsonObject().get("amics").getAsJsonArray();
                 List<MembreDto> amics = new ArrayList<>();

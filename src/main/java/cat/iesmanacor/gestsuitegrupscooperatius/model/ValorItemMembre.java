@@ -12,7 +12,7 @@ import java.util.Set;
 @Entity
 @Table(name = "im_valor_item_membre")
 //Alerta amb posar Hashcode de Lombok perquè si posem valorItem i Member el HashSet detecta que són distints si no té id!
-public @Data class ValorItemMembre implements Comparable<ValorItemMembre> {
+public @Data class ValorItemMembre {
     @Id
     @Column(name = "idvalor_item_membre")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +25,4 @@ public @Data class ValorItemMembre implements Comparable<ValorItemMembre> {
     @ManyToOne(optional = true)
     @JsonBackReference
     private Membre membre;
-
-    @Override
-    public int compareTo(ValorItemMembre o) {
-        return this.getValorItem().getItem().getIdItem().compareTo(o.getValorItem().getItem().getIdItem());
-    }
 }
