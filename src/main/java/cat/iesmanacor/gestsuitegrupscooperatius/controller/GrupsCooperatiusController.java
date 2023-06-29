@@ -247,7 +247,18 @@ public class GrupsCooperatiusController {
         }
 
         List<AgrupamentDto> agrupaments = mesclaMembres(membres, numGrups, numIteracions, percentatgeAmics, percentatgeEnemics);
-        return new ResponseEntity<>(agrupaments, HttpStatus.OK);
+        List<AgrupamentDto> result = new ArrayList<>();
+        agrupaments.forEach(a->{
+            AgrupamentDto agrupament = new AgrupamentDto();
+            agrupament.setNumero(a.getNumero());
+            agrupament.setMembres(a.getMembres().stream().map(m->{
+                MembreDto membre = new MembreDto();
+                membre.setNom(m.getNom());
+                return membre;
+            }).collect(Collectors.toSet()));
+            result.add(agrupament);
+        });
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     /* TODO: Acabar la segona manera de fer la mescla per aproximació */
