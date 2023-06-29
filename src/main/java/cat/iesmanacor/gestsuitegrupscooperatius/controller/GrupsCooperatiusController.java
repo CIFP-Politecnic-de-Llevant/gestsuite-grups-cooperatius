@@ -852,13 +852,20 @@ public class GrupsCooperatiusController {
 
         //Dels grups cooperatius de l'usuari agafem el que tingui la ID passada per paràmtre
         GrupCooperatiuDto grupCooperatiu = grupsCooperatiusUsuari.stream().filter(gc -> gc.getIdgrupCooperatiu().equals(Long.valueOf(idGrupCooperatiu))).collect(Collectors.toList()).get(0);
+
         List<ItemGrupCooperatiuDto> itemsGrupCooperatiu = itemGrupCooperatiuService.findAllByGrupCooperatiu(grupCooperatiu);
         itemsGrupCooperatiu.sort(Comparator.comparing(a -> a.getItem().getIdItem()));
         grupCooperatiu.setItemsGrupsCooperatius(new TreeSet<>(itemsGrupCooperatiu));
 
+        List<MembreDto> membresGrupCooperatiu = membreService.findAllByGrupCooperatiu(grupCooperatiu);
+        membresGrupCooperatiu.sort(Comparator.comparing(a -> a.getNom()));
+        grupCooperatiu.setMembres(new TreeSet<>(membresGrupCooperatiu));
+
         for (MembreDto membre : grupCooperatiu.getMembres()) {
             membre.setValorsItemMembre(new TreeSet<>(membre.getValorsItemMembre()));
         }
+
+        System.out.println("Grup cooperatiu membres: "+grupCooperatiu.getMembres().size());
 
         /*for(Membre membre:grupCooperatiu.getMembres()){
                 ArrayList<ValorItemMembre> valorsItemMembre = new ArrayList<>(membre.getValorsItemMembre());

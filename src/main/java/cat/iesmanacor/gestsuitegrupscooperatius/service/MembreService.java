@@ -9,6 +9,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class MembreService {
     @Autowired
@@ -28,6 +31,13 @@ public class MembreService {
         Membre membre = membreRepository.findById(id).get();
         //return itemRepository.getById(id);
         return modelMapper.map(membre,MembreDto.class);
+    }
+
+    public List<MembreDto> findAllByGrupCooperatiu(GrupCooperatiuDto grupCooperatiuDto){
+        ModelMapper modelMapper = new ModelMapper();
+        GrupCooperatiu grupCooperatiu = modelMapper.map(grupCooperatiuDto,GrupCooperatiu.class);
+        List<Membre> membres = membreRepository.findAllByGrupCooperatiu(grupCooperatiu);
+        return membres.stream().map(membre -> modelMapper.map(membre,MembreDto.class)).collect(Collectors.toList());
     }
 
     public void deleteByGrupCooperatiu(GrupCooperatiuDto grupCooperatiuDto){

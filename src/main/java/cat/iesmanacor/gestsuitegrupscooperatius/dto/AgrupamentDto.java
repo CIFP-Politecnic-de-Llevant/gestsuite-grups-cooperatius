@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import java.util.HashSet;
 import java.util.Set;
 
-@EqualsAndHashCode(exclude="grupCooperatiu")
+@EqualsAndHashCode(exclude={"grupCooperatiu"})
 public @Data class AgrupamentDto {
     private Long idagrupament;
     private String numero;

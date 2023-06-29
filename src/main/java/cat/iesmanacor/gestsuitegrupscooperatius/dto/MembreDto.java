@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @EqualsAndHashCode(exclude={"agrupament","valorsItemMembre","amics","enemics","grupCooperatiu"})
-public @Data class MembreDto {
+public @Data class MembreDto implements Comparable<MembreDto>{
     private Long idmembre;
     private String nom;
     private String agrupamentFixe;
@@ -16,4 +16,9 @@ public @Data class MembreDto {
     private Set<MembreDto> amics = new HashSet<>();
     private Set<MembreDto> enemics = new HashSet<>();
     private GrupCooperatiuDto grupCooperatiu;
+
+    @Override
+    public int compareTo(MembreDto o) {
+        return this.getNom().compareTo(o.getNom());
+    }
 }
