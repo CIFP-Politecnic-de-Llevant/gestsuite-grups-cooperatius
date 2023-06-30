@@ -52,6 +52,7 @@ public class GrupsCooperatiusController {
     }
 
     /*-- GRUPS COOPERATIUS --*/
+    /* TODO - Hi ha un error de recursivitat infinita als membres. Copiar la solució de la mescla genètica */
     @PostMapping("/aleatori")
     public ResponseEntity<?> getMesclaGrupsAleatoria(@RequestBody String json) {
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
@@ -269,7 +270,7 @@ public class GrupsCooperatiusController {
                 membre.setAmics(m.getAmics());
                 membre.setEnemics(m.getEnemics());
                 membre.setAgrupamentFixe(m.getAgrupamentFixe());
-                
+
                 return membre;
             }).collect(Collectors.toSet()));
             result.add(agrupament);
