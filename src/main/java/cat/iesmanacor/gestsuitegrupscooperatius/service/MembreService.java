@@ -7,6 +7,8 @@ import cat.iesmanacor.gestsuitegrupscooperatius.model.Agrupament;
 import cat.iesmanacor.gestsuitegrupscooperatius.model.GrupCooperatiu;
 import cat.iesmanacor.gestsuitegrupscooperatius.model.Membre;
 import cat.iesmanacor.gestsuitegrupscooperatius.repository.MembreRepository;
+import cat.iesmanacor.gestsuitegrupscooperatius.repository.ValorItemMembreRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,9 @@ import java.util.stream.Collectors;
 public class MembreService {
     @Autowired
     private MembreRepository membreRepository;
+
+    @Autowired
+    private ValorItemMembreRepository valorItemMembreRepository;
 
 
     public MembreDto save(MembreDto membreDto) {
@@ -49,9 +54,12 @@ public class MembreService {
         return membres.stream().map(membre -> modelMapper.map(membre,MembreDto.class)).collect(Collectors.toList());
     }
 
+    @Transactional
     public void deleteByGrupCooperatiu(GrupCooperatiuDto grupCooperatiuDto){
         ModelMapper modelMapper = new ModelMapper();
         GrupCooperatiu grupCooperatiu = modelMapper.map(grupCooperatiuDto,GrupCooperatiu.class);
+        List<Membre> membresGrupsCooperatiu = membreRepository.findAllByGrupCooperatiu(grupCooperatiu);
+        membresGrupsCooperatiu.forEach(membre -> valorItemMembreRepository.deleteAllByMembre(membre));
         membreRepository.deleteAllByGrupCooperatiu(grupCooperatiu);
     }
 

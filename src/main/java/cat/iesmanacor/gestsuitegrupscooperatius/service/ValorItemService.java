@@ -22,7 +22,10 @@ public class ValorItemService {
 
     public ValorItemDto findById(Long id){
         ModelMapper modelMapper = new ModelMapper();
-        ValorItem valorItem = valorItemRepository.findById(id).get();
+        ValorItem valorItem = valorItemRepository.findById(id).orElse(null);
+        if(valorItem == null){
+            return null;
+        }
         return modelMapper.map(valorItem,ValorItemDto.class);
     }
 

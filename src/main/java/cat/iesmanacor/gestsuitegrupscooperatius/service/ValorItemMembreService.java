@@ -1,6 +1,7 @@
 package cat.iesmanacor.gestsuitegrupscooperatius.service;
 
 import cat.iesmanacor.gestsuitegrupscooperatius.dto.MembreDto;
+import cat.iesmanacor.gestsuitegrupscooperatius.dto.ValorItemDto;
 import cat.iesmanacor.gestsuitegrupscooperatius.dto.ValorItemMembreDto;
 import cat.iesmanacor.gestsuitegrupscooperatius.model.Membre;
 import cat.iesmanacor.gestsuitegrupscooperatius.model.ValorItem;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ValorItemMembreService {
@@ -24,6 +26,10 @@ public class ValorItemMembreService {
         return modelMapper.map(valorItemMembre,ValorItemMembreDto.class);
     }
 
+    public void deleteById(Long id){
+        valorItemMembreRepository.deleteById(id);
+    }
+
     public ValorItemMembreDto save(ValorItemMembreDto valorItemMembreDto){
         ModelMapper modelMapper = new ModelMapper();
         ValorItemMembre valorItemMembre = modelMapper.map(valorItemMembreDto,ValorItemMembre.class);
@@ -31,10 +37,22 @@ public class ValorItemMembreService {
         return modelMapper.map(valorItemMembreSaved,ValorItemMembreDto.class);
     }
 
-    public List<ValorItemMembreDto> findAllByMembre(MembreDto membre){
+    public Optional<ValorItemMembreDto> findByMembreAndValorItem(MembreDto membreDto, ValorItemDto valorItemDto){
         ModelMapper modelMapper = new ModelMapper();
-        Membre membre1 = modelMapper.map(membre,Membre.class);
-        List<ValorItemMembre> valorItemMembres = valorItemMembreRepository.findAllByMembre(membre1);
+        Membre membre = modelMapper.map(membreDto,Membre.class);
+        ValorItem valorItem = modelMapper.map(valorItemDto,ValorItem.class);
+        ValorItemMembre valorItemMembre = valorItemMembreRepository.findByMembreAndValorItem(membre,valorItem);
+        if(valorItemMembre == null){
+            return Optional.empty();
+        }
+        ValorItemMembreDto valorItemMembreDto = modelMapper.map(valorItemMembre,ValorItemMembreDto.class);
+        return Optional.ofNullable(valorItemMembreDto);
+    }
+
+    public List<ValorItemMembreDto> findAllByMembre(MembreDto membreDto){
+        ModelMapper modelMapper = new ModelMapper();
+        Membre membre = modelMapper.map(membreDto,Membre.class);
+        List<ValorItemMembre> valorItemMembres = valorItemMembreRepository.findAllByMembre(membre);
         return valorItemMembres.stream().map(valorItemMembre -> modelMapper.map(valorItemMembre,ValorItemMembreDto.class)).collect(java.util.stream.Collectors.toList());
     }
 }

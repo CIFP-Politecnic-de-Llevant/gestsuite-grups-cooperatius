@@ -706,6 +706,9 @@ public class GrupsCooperatiusController {
 
         GrupCooperatiuDto grupCooperatiuSaved = grupCooperatiuService.save(grupCooperatiu);
 
+        //Reset members
+        membreService.deleteByGrupCooperatiu(grupCooperatiuSaved);
+
 
         //Items grup cooperatiu
         List<ItemGrupCooperatiuDto> itemsGrupCooperatiu = new ArrayList<>();
@@ -733,6 +736,7 @@ public class GrupsCooperatiusController {
                 if (jsonMember.getAsJsonObject().get("agrupamentFixe") != null && !jsonMember.getAsJsonObject().get("agrupamentFixe").isJsonNull()) {
                     agrupamentFixeMembre = jsonMember.getAsJsonObject().get("agrupamentFixe").getAsString();
                 }
+
 
                 MembreDto membre = new MembreDto();
                 membre.setNom(nomMembre);
@@ -774,15 +778,15 @@ public class GrupsCooperatiusController {
 
 
                 //Valors Item
-                List<ValorItemDto> valorsItem = new ArrayList<>();
+                /*List<ValorItemDto> valorsItem = new ArrayList<>();
                 JsonArray jsonValorsItems = jsonMember.getAsJsonObject().get("valorsItemMembre").getAsJsonArray();
                 for (JsonElement jsonValorItem : jsonValorsItems) {
                     Long idValorItem = jsonValorItem.getAsJsonObject().get("valorItem").getAsJsonObject().get("id").getAsLong();
                     ValorItemDto valorItem = valorItemService.findById(idValorItem);
                     valorsItem.add(valorItem);
-                }
+                }*/
 
-                List<ValorItemMembreDto> valorsItemsMembres = new ArrayList<>();
+                /*List<ValorItemMembreDto> valorsItemsMembres = new ArrayList<>();
                 for (ValorItemDto vi : valorsItem) {
                     ValorItemMembreDto valorItemMembre = new ValorItemMembreDto();
                     valorItemMembre.setMembre(membreSaved);
@@ -791,8 +795,29 @@ public class GrupsCooperatiusController {
                     ValorItemMembreDto valorItemMembreSaved = valorItemMembreService.save(valorItemMembre);
 
                     valorsItemsMembres.add(valorItemMembreSaved);
-                }
+                }*/
                 //membreSaved.setValorsItemMembre(new HashSet<>(valorsItemsMembres));
+
+                JsonArray itemsUsuari = jsonMember.getAsJsonObject().get("valorsItemMapped").getAsJsonArray();
+                //List<ValorItemMembreDto> valorsItemMembre = new ArrayList<>();
+                for (JsonElement itemUsuari : itemsUsuari) {
+                    ValorItemDto valorItem = valorItemService.findById(itemUsuari.getAsJsonObject().get("value").getAsLong());
+
+                    //Esborrem els anteriors si existeixen
+                    valorItemMembreService.findByMembreAndValorItem(membreSaved, valorItem).ifPresent(valorItemMembreDto -> {
+                        valorItemMembreService.deleteById(valorItemMembreDto.getIdvalorItemMembre());
+                    });
+
+                    ValorItemMembreDto valorItemMembre = new ValorItemMembreDto();
+
+                    valorItemMembre.setMembre(membreSaved);
+                    valorItemMembre.setValorItem(valorItem);
+
+                    //valorsItemMembre.add(valorItemMembre);
+
+                    valorItemMembreService.save(valorItemMembre);
+                }
+                //membreSaved.setValorsItemMembre(new HashSet<>(valorsItemMembre));
 
                 membreService.save(membreSaved);
             }
@@ -800,7 +825,7 @@ public class GrupsCooperatiusController {
 
 
         //Resultat (Agrupaments)
-        grupCooperatiuSaved.getAgrupaments().clear();
+        /*grupCooperatiuSaved.getAgrupaments().clear();
         List<AgrupamentDto> agrupaments = new ArrayList<>();
         if (jsonObject.get("resultat") != null && !jsonObject.get("resultat").isJsonNull()) {
             JsonArray jsonAgrupaments = jsonObject.get("resultat").getAsJsonArray();
@@ -823,7 +848,7 @@ public class GrupsCooperatiusController {
 
 
             }
-        }
+        }*/
 
 
         Notificacio notificacio = new Notificacio();
