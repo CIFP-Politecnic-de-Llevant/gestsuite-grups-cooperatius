@@ -266,6 +266,10 @@ public class GrupsCooperatiusController {
                     valorsItemMembre.add(valorItemMembreDto);
                 });
                 membre.setValorsItemMembre(new TreeSet<>(valorsItemMembre));
+                membre.setAmics(m.getAmics());
+                membre.setEnemics(m.getEnemics());
+                membre.setAgrupamentFixe(m.getAgrupamentFixe());
+                
                 return membre;
             }).collect(Collectors.toSet()));
             result.add(agrupament);
