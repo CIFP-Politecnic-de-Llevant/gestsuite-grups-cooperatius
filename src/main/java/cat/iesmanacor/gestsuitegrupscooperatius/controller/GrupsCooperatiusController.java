@@ -714,6 +714,11 @@ public class GrupsCooperatiusController {
         //Reset members
         membreService.deleteByGrupCooperatiu(grupCooperatiuSaved);
 
+        //Reset agrupaments
+        System.out.println("Esborrem els agrupaments anteriors");
+        agrupamentService.deleteByGrupCooperatiu(grupCooperatiuSaved);
+        System.out.println("Esborrats");
+
 
         //Items grup cooperatiu
         List<ItemGrupCooperatiuDto> itemsGrupCooperatiu = new ArrayList<>();
@@ -830,7 +835,9 @@ public class GrupsCooperatiusController {
 
 
         //Resultat (Agrupaments)
-        /*grupCooperatiuSaved.getAgrupaments().clear();
+
+
+
         List<AgrupamentDto> agrupaments = new ArrayList<>();
         if (jsonObject.get("resultat") != null && !jsonObject.get("resultat").isJsonNull()) {
             JsonArray jsonAgrupaments = jsonObject.get("resultat").getAsJsonArray();
@@ -841,19 +848,18 @@ public class GrupsCooperatiusController {
                 agrupament.setNumero(numero);
                 agrupament.setGrupCooperatiu(grupCooperatiuSaved);
 
-                AgrupamentDto agrupamentSaved = agrupamentService.save(agrupament);
-
+                HashSet<MembreDto> membresAgrupament = new HashSet<>();
                 JsonArray jsonMembres = jsonAgrupament.getAsJsonObject().get("membres").getAsJsonArray();
                 for (JsonElement jsonMember : jsonMembres) {
                     MembreDto membreSaved = membres.stream().filter(m -> m.getNom().equals(jsonMember.getAsJsonObject().get("nom").getAsString())).collect(Collectors.toList()).get(0);
-                    membreSaved.setAgrupament(agrupamentSaved);
-
-                    membreService.save(membreSaved);
+                    membresAgrupament.add(membreSaved);
                 }
 
+                agrupament.setMembres(membresAgrupament);
+                AgrupamentDto agrupamentSaved = agrupamentService.save(agrupament);
 
             }
-        }*/
+        }
 
 
         Notificacio notificacio = new Notificacio();

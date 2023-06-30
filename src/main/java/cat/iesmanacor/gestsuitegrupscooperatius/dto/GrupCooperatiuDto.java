@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import java.util.HashSet;
 import java.util.Set;
 
-@EqualsAndHashCode(exclude={"itemsGrupsCooperatius"})
+@EqualsAndHashCode(exclude={"itemsGrupsCooperatius","agrupaments","membres"})
 public @Data class GrupCooperatiuDto {
     private Long idgrupCooperatiu;
     private String nom;
