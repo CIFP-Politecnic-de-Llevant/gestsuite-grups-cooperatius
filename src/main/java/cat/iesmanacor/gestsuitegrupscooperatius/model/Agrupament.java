@@ -1,10 +1,7 @@
 package cat.iesmanacor.gestsuitegrupscooperatius.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,10 +18,8 @@ public @Data class Agrupament {
     private String numero;
 
     @OneToMany(mappedBy = "agrupament", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
     private Set<Membre> membres = new HashSet<>();
 
     @ManyToOne(optional = true)
-    @JsonBackReference
     private GrupCooperatiu grupCooperatiu;
 }

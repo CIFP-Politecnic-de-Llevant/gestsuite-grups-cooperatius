@@ -4,7 +4,7 @@ import cat.iesmanacor.gestsuitegrupscooperatius.model.ValorItemMembre;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode(exclude={"valorItem"})
+@EqualsAndHashCode(exclude={"valorItem","membre"})
 public @Data class ValorItemMembreDto implements Comparable<ValorItemMembreDto> {
     private Long idvalorItemMembre;
     private ValorItemDto valorItem;

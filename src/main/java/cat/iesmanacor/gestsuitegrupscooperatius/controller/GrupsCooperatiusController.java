@@ -693,7 +693,16 @@ public class GrupsCooperatiusController {
 
         //Si ja existeix ho esborrem tot
         if (jsonGrupCooperatiu.get("id") != null && !jsonGrupCooperatiu.get("id").isJsonNull()) {
-            grupCooperatiu.setIdgrupCooperatiu(jsonGrupCooperatiu.get("id").getAsLong());
+            Long idGrupCooperatiu = jsonGrupCooperatiu.get("id").getAsLong();
+            grupCooperatiu.setIdgrupCooperatiu(idGrupCooperatiu);
+
+            //Reset members
+            membreService.deleteByGrupCooperatiu(idGrupCooperatiu);
+
+            //Reset agrupaments
+            System.out.println("Esborrem els agrupaments anteriors");
+            agrupamentService.deleteByGrupCooperatiu(idGrupCooperatiu);
+            System.out.println("Esborrats");
         }
 
         String nom = "Sense nom";
@@ -710,14 +719,6 @@ public class GrupsCooperatiusController {
         grupCooperatiu.setUsuari(myUser);
 
         GrupCooperatiuDto grupCooperatiuSaved = grupCooperatiuService.save(grupCooperatiu);
-
-        //Reset members
-        membreService.deleteByGrupCooperatiu(grupCooperatiuSaved);
-
-        //Reset agrupaments
-        System.out.println("Esborrem els agrupaments anteriors");
-        agrupamentService.deleteByGrupCooperatiu(grupCooperatiuSaved);
-        System.out.println("Esborrats");
 
 
         //Items grup cooperatiu
@@ -839,6 +840,7 @@ public class GrupsCooperatiusController {
 
 
         List<AgrupamentDto> agrupaments = new ArrayList<>();
+        List<MembreDto> membresGrupCooperatiu = membreService.findAllByGrupCooperatiu(grupCooperatiuSaved);
         if (jsonObject.get("resultat") != null && !jsonObject.get("resultat").isJsonNull()) {
             JsonArray jsonAgrupaments = jsonObject.get("resultat").getAsJsonArray();
             for (JsonElement jsonAgrupament : jsonAgrupaments) {
@@ -848,16 +850,22 @@ public class GrupsCooperatiusController {
                 agrupament.setNumero(numero);
                 agrupament.setGrupCooperatiu(grupCooperatiuSaved);
 
+                AgrupamentDto agrupamentSaved = agrupamentService.save(agrupament);
+
                 HashSet<MembreDto> membresAgrupament = new HashSet<>();
                 JsonArray jsonMembres = jsonAgrupament.getAsJsonObject().get("membres").getAsJsonArray();
                 for (JsonElement jsonMember : jsonMembres) {
-                    MembreDto membreSaved = membres.stream().filter(m -> m.getNom().equals(jsonMember.getAsJsonObject().get("nom").getAsString())).collect(Collectors.toList()).get(0);
-                    membresAgrupament.add(membreSaved);
+                    List<MembreDto> membreSaved = membresGrupCooperatiu.stream().filter(m -> m.getNom().equals(jsonMember.getAsJsonObject().get("nom").getAsString())).collect(Collectors.toList());
+                    if(membreSaved.size() > 0) {
+                        MembreDto membreAgrupament = membreSaved.get(0);
+                        membreAgrupament.setAgrupament(agrupamentSaved);
+
+                        membreService.save(membreAgrupament);
+                    }
                 }
 
-                agrupament.setMembres(membresAgrupament);
-                AgrupamentDto agrupamentSaved = agrupamentService.save(agrupament);
-
+                //agrupamentSaved.setMembres(membresAgrupament);
+                //agrupamentService.save(agrupament);
             }
         }
 

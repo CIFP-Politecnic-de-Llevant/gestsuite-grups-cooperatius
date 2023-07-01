@@ -1,6 +1,5 @@
 package cat.iesmanacor.gestsuitegrupscooperatius.dto;
 
-import cat.iesmanacor.gestsuitegrupscooperatius.model.ItemGrupCooperatiu;
 import lombok.Data;
 
 public @Data class ItemGrupCooperatiuDto implements Comparable<ItemGrupCooperatiuDto> {

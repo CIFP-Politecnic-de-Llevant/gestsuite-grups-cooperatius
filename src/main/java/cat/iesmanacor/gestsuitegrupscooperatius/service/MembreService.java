@@ -55,12 +55,11 @@ public class MembreService {
     }
 
     @Transactional
-    public void deleteByGrupCooperatiu(GrupCooperatiuDto grupCooperatiuDto){
+    public void deleteByGrupCooperatiu(Long idGrupCooperatiuDto){
         ModelMapper modelMapper = new ModelMapper();
-        GrupCooperatiu grupCooperatiu = modelMapper.map(grupCooperatiuDto,GrupCooperatiu.class);
-        List<Membre> membresGrupsCooperatiu = membreRepository.findAllByGrupCooperatiu(grupCooperatiu);
+        List<Membre> membresGrupsCooperatiu = membreRepository.findAllByGrupCooperatiu_IdgrupCooperatiu(idGrupCooperatiuDto);
         membresGrupsCooperatiu.forEach(membre -> valorItemMembreRepository.deleteAllByMembre(membre));
-        membreRepository.deleteAllByGrupCooperatiu(grupCooperatiu);
+        membreRepository.deleteAllByGrupCooperatiu_IdgrupCooperatiu(idGrupCooperatiuDto);
     }
 
 }

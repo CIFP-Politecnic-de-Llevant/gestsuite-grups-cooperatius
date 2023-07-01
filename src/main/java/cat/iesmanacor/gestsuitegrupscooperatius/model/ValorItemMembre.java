@@ -1,13 +1,8 @@
 package cat.iesmanacor.gestsuitegrupscooperatius.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "im_valor_item_membre")
@@ -19,10 +14,8 @@ public @Data class ValorItemMembre {
     private Long idvalorItemMembre;
 
     @ManyToOne(optional = true)
-    @JsonManagedReference
     private ValorItem valorItem;
 
     @ManyToOne(optional = true)
-    @JsonBackReference
     private Membre membre;
 }

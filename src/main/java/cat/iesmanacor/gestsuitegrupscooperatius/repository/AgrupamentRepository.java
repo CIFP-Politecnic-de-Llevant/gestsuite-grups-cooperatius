@@ -10,5 +10,5 @@ import java.util.List;
 @Repository
 public interface AgrupamentRepository extends JpaRepository<Agrupament, Long> {
     List<Agrupament> findAllByGrupCooperatiu(GrupCooperatiu grupCooperatiu);
-    void deleteAllByGrupCooperatiu(GrupCooperatiu grupCooperatiu);
+    void deleteAllByGrupCooperatiu_IdgrupCooperatiu(Long idGrupCooperatiu);
 }

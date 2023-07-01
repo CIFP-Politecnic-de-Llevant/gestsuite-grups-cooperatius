@@ -1,10 +1,7 @@
 package cat.iesmanacor.gestsuitegrupscooperatius.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,6 +21,5 @@ public @Data class ValorItem {
     private Integer pes;
 
     @ManyToOne(optional = true)
-    @JsonManagedReference
     private Item item;
 }

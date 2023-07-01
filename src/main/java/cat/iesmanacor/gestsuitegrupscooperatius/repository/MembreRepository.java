@@ -10,7 +10,8 @@ import java.util.List;
 
 @Repository
 public interface MembreRepository extends JpaRepository<Membre, Long> {
-    void deleteAllByGrupCooperatiu(GrupCooperatiu grupCooperatiu);
+    void deleteAllByGrupCooperatiu_IdgrupCooperatiu(Long idGrupCooperatiu);
+    List<Membre> findAllByGrupCooperatiu_IdgrupCooperatiu(Long idGrupCooperatiu);
     List<Membre> findAllByGrupCooperatiu(GrupCooperatiu grupCooperatiu);
     List<Membre> findAllByAgrupament(Agrupament agrupament);
 }
