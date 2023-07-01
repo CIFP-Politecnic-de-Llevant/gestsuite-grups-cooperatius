@@ -1,13 +1,7 @@
 package cat.iesmanacor.gestsuitegrupscooperatius.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "im_item_grup_cooperatiu")
@@ -19,13 +13,11 @@ public @Data class ItemGrupCooperatiu {
     @Id
     @ManyToOne
     @JoinColumn(name = "item", insertable = false, updatable = false)
-    @JsonManagedReference
     private Item item;
 
     @Id
     @ManyToOne
     @JoinColumn(name = "grup_cooperatiu", insertable = false, updatable = false)
-    @JsonBackReference
     private GrupCooperatiu grupCooperatiu;
 
 
