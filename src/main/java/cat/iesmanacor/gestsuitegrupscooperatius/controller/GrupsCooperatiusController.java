@@ -12,6 +12,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Part;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.*;
+import java.time.LocalDate;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @RestController
@@ -990,6 +994,79 @@ public class GrupsCooperatiusController {
         notificacio.setNotifyMessage("Ítem desat correctament");
         notificacio.setNotifyType(NotificacioTipus.SUCCESS);
         return new ResponseEntity<>(notificacio, HttpStatus.OK);
+    }
+
+    @PostMapping("/parser")
+    public void parserFile(HttpServletRequest request){
+        try {
+            Part filePart = request.getPart("arxiu");
+
+            InputStream is = filePart.getInputStream();
+
+            // Reads the file into memory
+            /*
+             * Path path = Paths.get(audioPath); byte[] data = Files.readAllBytes(path);
+             * ByteString audioBytes = ByteString.copyFrom(data);
+             */
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            byte[] readBuf = new byte[4096];
+            while (is.available() > 0) {
+                int bytesRead = is.read(readBuf);
+                os.write(readBuf, 0, bytesRead);
+            }
+
+            // Passam l'arxiu a dins una carpeta
+            String fileName = "/tmp/arxiu.csv";
+
+            OutputStream outputStream = new FileOutputStream(fileName);
+            os.writeTo(outputStream);
+
+            File f = new File(fileName);
+
+            //Parser csv
+            //El caràcter "|" s'ha d'escapar, sinó ho agafa malament com expressió regular
+            final String DELIMITER = Pattern.quote(",");
+
+            List<List<String>> records = new ArrayList<>();
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(DELIMITER);
+                records.add(Arrays.asList(values));
+            }
+
+            //Linia = 0003|15/01/18|13:13:17|000|01;
+            for(List<String> linia: records){
+                String nomAlumne = linia.get(0);
+                //ORD - NESE - NEE
+                String atencioDiversitat = linia.get(1);
+                String hora = linia.get(2);
+                String curs = linia.get(5);
+                String metode = linia.get(4);
+
+                if(linia.size()>=10){
+                    MembreDto membre = new MembreDto();
+                    membre.setNom(nomAlumne);
+                    membreService.save(membre);
+                }
+
+                /*DiaMarcatgeOriginal diaMarcatgeOriginal = diaMarcatgeOriginalService.findByUsuariAndDataAndHoraAndTipusAndMetode(numMarcatge,data,hora,tipus,metode);
+
+                if(diaMarcatgeOriginal==null){
+                    DiaMarcatgeOriginal d = new DiaMarcatgeOriginal();
+                    d.setUsuari(numMarcatge);
+                    d.setData(data);
+                    d.setHora(hora);
+                    d.setTipus(tipus);
+                    d.setMetode(metode);
+
+                    //System.out.println("Desant dia "+numMarcatge+" - "+data+" - "+hora);
+                    diaMarcatgeOriginalService.save(d);
+                }*/
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
