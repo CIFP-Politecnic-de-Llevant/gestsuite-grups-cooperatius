@@ -44,5 +44,12 @@ public class AgrupamentService {
     public void deleteByGrupCooperatiu(Long idGrupCooperatiuDto){
         agrupamentRepository.deleteAllByGrupCooperatiu_IdgrupCooperatiu(idGrupCooperatiuDto);
     }
+
+    @Transactional
+    public void deleteByGrupCooperatiu(GrupCooperatiuDto grupCooperatiuDto){
+        ModelMapper modelMapper = new ModelMapper();
+        GrupCooperatiu grupCooperatiu = modelMapper.map(grupCooperatiuDto, GrupCooperatiu.class);
+        agrupamentRepository.deleteAllByGrupCooperatiu(grupCooperatiu);
+    }
 }
 

@@ -21,15 +21,22 @@ public @Data class Membre {
     private String agrupamentFixe;
 
     @ManyToOne(optional = true)
+    @JoinColumn(name = "agrupament_id")
     private Agrupament agrupament;
 
     @OneToMany(mappedBy = "membre", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ValorItemMembre> valorsItemMembre = new HashSet<>();
 
     @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "im_membre_amics",
+            joinColumns = @JoinColumn(name = "membre_id"),
+            inverseJoinColumns = @JoinColumn(name = "amic_id"))
     private Set<Membre> amics = new HashSet<>();
 
     @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "im_membre_enemics",
+            joinColumns = @JoinColumn(name = "membre_id"),
+            inverseJoinColumns = @JoinColumn(name = "enemic_id"))
     private Set<Membre> enemics = new HashSet<>();
 
     @ManyToOne(optional = false)
