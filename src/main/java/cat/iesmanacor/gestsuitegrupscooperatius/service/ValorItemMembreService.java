@@ -8,9 +8,11 @@ import cat.iesmanacor.gestsuitegrupscooperatius.model.ValorItem;
 import cat.iesmanacor.gestsuitegrupscooperatius.model.ValorItemMembre;
 import cat.iesmanacor.gestsuitegrupscooperatius.repository.ValorItemMembreRepository;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +34,13 @@ public class ValorItemMembreService {
 
     public ValorItemMembreDto save(ValorItemMembreDto valorItemMembreDto){
         ModelMapper modelMapper = new ModelMapper();
+        PropertyMap<ValorItemMembreDto, ValorItemMembre> mapper = new PropertyMap<>() {
+            protected void configure() {
+                map().getMembre().setAmics(new HashSet<>());
+                map().getMembre().setEnemics(new HashSet<>());
+            }
+        };
+        modelMapper.addMappings(mapper);
         ValorItemMembre valorItemMembre = modelMapper.map(valorItemMembreDto,ValorItemMembre.class);
         ValorItemMembre valorItemMembreSaved = valorItemMembreRepository.save(valorItemMembre);
         return modelMapper.map(valorItemMembreSaved,ValorItemMembreDto.class);

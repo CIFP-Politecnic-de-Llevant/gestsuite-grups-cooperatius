@@ -1,5 +1,6 @@
 package cat.iesmanacor.gestsuitegrupscooperatius.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

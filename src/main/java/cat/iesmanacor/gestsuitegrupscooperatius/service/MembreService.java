@@ -70,6 +70,11 @@ public class MembreService {
         GrupCooperatiu grupCooperatiu = modelMapper.map(grupCooperatiuDto,GrupCooperatiu.class);
         List<Membre> membresGrupsCooperatiu = membreRepository.findAllByGrupCooperatiu(grupCooperatiu);
         membresGrupsCooperatiu.forEach(membre -> valorItemMembreRepository.deleteAllByMembre(membre));
+        membresGrupsCooperatiu.forEach(membre -> {
+            membre.setAmics(null);
+            membre.setEnemics(null);
+        });
+        membreRepository.saveAll(membresGrupsCooperatiu);
         membreRepository.deleteAllByGrupCooperatiu(grupCooperatiu);
     }
 
