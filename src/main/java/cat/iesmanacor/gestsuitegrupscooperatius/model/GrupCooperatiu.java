@@ -26,7 +26,7 @@ public @Data class GrupCooperatiu {
     @OneToMany(mappedBy = "grupCooperatiu", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Agrupament> agrupaments = new HashSet<>();
 
-    @Column(name = "usuari_idusuari", nullable = false)
-    private Long usuari;
+    //@Column(name = "usuari_idusuari", nullable = false)
+    //private Long usuari;
 
 }

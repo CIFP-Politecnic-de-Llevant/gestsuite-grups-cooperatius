@@ -30,13 +30,13 @@ public class ItemGrupCooperatiuService {
 
     public ItemGrupCooperatiuDto save(ItemGrupCooperatiuDto itemGrupCooperatiuDto) {
         ModelMapper modelMapper = new ModelMapper();
-        PropertyMap<ItemGrupCooperatiuDto, ItemGrupCooperatiu> mapperItemGrupCoopeatiu = new PropertyMap<>() {
+        /*PropertyMap<ItemGrupCooperatiuDto, ItemGrupCooperatiu> mapperItemGrupCoopeatiu = new PropertyMap<>() {
             protected void configure() {
                 map().getGrupCooperatiu().setUsuari(source.getGrupCooperatiu().getUsuari().getIdusuari());
                 map().getItem().setUsuari(source.getItem().getUsuari().getIdusuari());
             }
         };
-        modelMapper.addMappings(mapperItemGrupCoopeatiu);
+        modelMapper.addMappings(mapperItemGrupCoopeatiu);*/
 
         //ItemGrupCooperatiu itemGrupCooperatiu = modelMapper.map(itemGrupCooperatiuDto,ItemGrupCooperatiu.class);
         //Mapeig manual perquè al DAO l'usuari és un Long i al DTO és un UsuariDto

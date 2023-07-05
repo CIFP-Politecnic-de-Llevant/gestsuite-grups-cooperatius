@@ -31,12 +31,12 @@ public class ValorItemService {
 
     public List<ValorItemDto> findAllValorsByItem(ItemDto itemDto){
         ModelMapper modelMapper = new ModelMapper();
-        PropertyMap<ItemDto, Item> mapper = new PropertyMap<>() {
+        /*PropertyMap<ItemDto, Item> mapper = new PropertyMap<>() {
             protected void configure() {
                 map().setUsuari(source.getUsuari().getIdusuari());
             }
         };
-        modelMapper.addMappings(mapper);
+        modelMapper.addMappings(mapper);*/
 
         Item item = modelMapper.map(itemDto, Item.class);
 

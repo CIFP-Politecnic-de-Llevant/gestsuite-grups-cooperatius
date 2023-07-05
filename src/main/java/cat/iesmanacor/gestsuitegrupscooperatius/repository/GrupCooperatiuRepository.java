@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface GrupCooperatiuRepository extends JpaRepository<GrupCooperatiu, Long> {
-    List<GrupCooperatiu> findAllByUsuari(Long usuari);
+    //List<GrupCooperatiu> findAllByUsuari(Long usuari);
 }

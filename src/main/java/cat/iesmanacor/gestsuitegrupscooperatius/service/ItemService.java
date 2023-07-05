@@ -30,16 +30,16 @@ public class ItemService {
     public ItemDto save(ItemDto itemDto) {
         ModelMapper modelMapper = new ModelMapper();
 
-        PropertyMap<ItemDto, Item> mapper = new PropertyMap<>() {
+        /*PropertyMap<ItemDto, Item> mapper = new PropertyMap<>() {
             protected void configure() {
                 map().setUsuari(source.getUsuari().getIdusuari());
             }
         };
-        modelMapper.addMappings(mapper);
+        modelMapper.addMappings(mapper);*/
         Item item = modelMapper.map(itemDto,Item.class);
 
         //Afegeim l'usuari manualment perquè el mapeig no és igual Usuari i UsuariDTO
-        item.setUsuari(itemDto.getUsuari().getIdusuari());
+        //item.setUsuari(itemDto.getUsuari().getIdusuari());
 
         Item itemSaved = itemRepository.save(item);
         return modelMapper.map(itemSaved,ItemDto.class);
@@ -51,15 +51,16 @@ public class ItemService {
         Item item = itemRepository.findById(id).get();
         //return itemRepository.getById(id);
         ItemDto itemDto = modelMapper.map(item,ItemDto.class);
-        UsuariDto usuariDto = new UsuariDto();
-        usuariDto.setIdusuari(item.getUsuari());
-        itemDto.setUsuari(usuariDto);
+        //UsuariDto usuariDto = new UsuariDto();
+        //usuariDto.setIdusuari(item.getUsuari());
+        //itemDto.setUsuari(usuariDto);
         return itemDto;
     }
 
     public List<ItemDto> findAllByUsuari(UsuariDto usuari){
         ModelMapper modelMapper = new ModelMapper();
-        return itemRepository.findAllByUsuari(usuari.getIdusuari()).stream().map(item->modelMapper.map(item, ItemDto.class)).collect(Collectors.toList());
+        //return itemRepository.findAllByUsuari(usuari.getIdusuari()).stream().map(item->modelMapper.map(item, ItemDto.class)).collect(Collectors.toList());
+        return itemRepository.findAll().stream().map(item->modelMapper.map(item, ItemDto.class)).collect(Collectors.toList());
     }
 
     public void deleteAllValorsByItem(ItemDto itemDto){

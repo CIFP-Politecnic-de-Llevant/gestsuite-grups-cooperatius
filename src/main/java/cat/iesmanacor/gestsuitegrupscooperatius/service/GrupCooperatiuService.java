@@ -29,12 +29,12 @@ public class GrupCooperatiuService {
     @Transactional
     public GrupCooperatiuDto save(GrupCooperatiuDto grupCooperatiuDto) {
         ModelMapper modelMapper = new ModelMapper();
-        PropertyMap<GrupCooperatiuDto, GrupCooperatiu> mapperGrupCooperatiu = new PropertyMap<>() {
+        /*PropertyMap<GrupCooperatiuDto, GrupCooperatiu> mapperGrupCooperatiu = new PropertyMap<>() {
             protected void configure() {
                 map().setUsuari(source.getUsuari().getIdusuari());
             }
-        };
-        modelMapper.addMappings(mapperGrupCooperatiu);
+        };*/
+        //modelMapper.addMappings(mapperGrupCooperatiu);
 
         GrupCooperatiu grupCooperatiu = modelMapper.map(grupCooperatiuDto,GrupCooperatiu.class);
         GrupCooperatiu grupCooperatiuSaved = grupCooperatiuRepository.save(grupCooperatiu);
@@ -49,9 +49,14 @@ public class GrupCooperatiuService {
         return modelMapper.map(grupCooperatiu,GrupCooperatiuDto.class);
     }
 
-    public List<GrupCooperatiuDto> findAllByUsuari(UsuariDto usuariDto) {
+    public List<GrupCooperatiuDto> findAll() {
+        ModelMapper modelMapper = new ModelMapper();
+        return grupCooperatiuRepository.findAll().stream().map(grupCooperatiu->modelMapper.map(grupCooperatiu, GrupCooperatiuDto.class)).collect(Collectors.toList());
+    }
+
+    /*public List<GrupCooperatiuDto> findAllByUsuari(UsuariDto usuariDto) {
         ModelMapper modelMapper = new ModelMapper();
         return grupCooperatiuRepository.findAllByUsuari(usuariDto.getIdusuari()).stream().map(grupCooperatiu->modelMapper.map(grupCooperatiu, GrupCooperatiuDto.class)).collect(Collectors.toList());
-    }
+    }*/
 }
 

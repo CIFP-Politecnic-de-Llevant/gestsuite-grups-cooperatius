@@ -5,6 +5,7 @@ import cat.iesmanacor.common.model.NotificacioTipus;
 import cat.iesmanacor.gestsuitegrupscooperatius.dto.*;
 import cat.iesmanacor.gestsuitegrupscooperatius.dto.gestib.UsuariDto;
 import cat.iesmanacor.gestsuitegrupscooperatius.model.ValorItem;
+import cat.iesmanacor.gestsuitegrupscooperatius.model.ValorItemMembre;
 import cat.iesmanacor.gestsuitegrupscooperatius.restclient.CoreRestClient;
 import cat.iesmanacor.gestsuitegrupscooperatius.service.*;
 import com.google.gson.Gson;
@@ -682,8 +683,8 @@ public class GrupsCooperatiusController {
 
     @PostMapping("/mescla/desar")
     public ResponseEntity<Notificacio> saveGrupCooperatiu(@RequestBody String json, HttpServletRequest request) throws Exception {
-        ResponseEntity<UsuariDto> myUserResponse = coreRestClient.getProfile();
-        UsuariDto myUser = myUserResponse.getBody();
+        //ResponseEntity<UsuariDto> myUserResponse = coreRestClient.getProfile();
+        //UsuariDto myUser = myUserResponse.getBody();
 
 
         //PARSE JSON
@@ -712,7 +713,7 @@ public class GrupsCooperatiusController {
         //nom += " - "+dtf.format(now);
 
         grupCooperatiu.setNom(nom);
-        grupCooperatiu.setUsuari(myUser);
+        //grupCooperatiu.setUsuari(myUser);
 
         GrupCooperatiuDto grupCooperatiuSaved = grupCooperatiuService.save(grupCooperatiu);
 
@@ -854,17 +855,19 @@ public class GrupsCooperatiusController {
         ResponseEntity<UsuariDto> myUserResponse = coreRestClient.getProfile();
         UsuariDto myUser = myUserResponse.getBody();
 
-        List<GrupCooperatiuDto> grupsCooperatiusUsuari = grupCooperatiuService.findAllByUsuari(myUser);
+        //List<GrupCooperatiuDto> grupsCooperatiusUsuari = grupCooperatiuService.findAllByUsuari(myUser);
+        List<GrupCooperatiuDto> grupsCooperatiusUsuari = grupCooperatiuService.findAll();
 
         return new ResponseEntity<>(grupsCooperatiusUsuari, HttpStatus.OK);
     }
 
     @GetMapping("/grupcooperatiu/{id}")
     public ResponseEntity<GrupCooperatiuDto> getGrupCooperatiu(@PathVariable("id") String idGrupCooperatiu, HttpServletRequest request) throws Exception {
-        ResponseEntity<UsuariDto> myUserResponse = coreRestClient.getProfile();
-        UsuariDto myUser = myUserResponse.getBody();
+        //ResponseEntity<UsuariDto> myUserResponse = coreRestClient.getProfile();
+        //UsuariDto myUser = myUserResponse.getBody();
 
-        List<GrupCooperatiuDto> grupsCooperatiusUsuari = grupCooperatiuService.findAllByUsuari(myUser);
+        //List<GrupCooperatiuDto> grupsCooperatiusUsuari = grupCooperatiuService.findAllByUsuari(myUser);
+        List<GrupCooperatiuDto> grupsCooperatiusUsuari = grupCooperatiuService.findAll();
 
         //Dels grups cooperatius de l'usuari agafem el que tingui la ID passada per paràmtre
         GrupCooperatiuDto grupCooperatiu = grupsCooperatiusUsuari.stream().filter(gc -> gc.getIdgrupCooperatiu().equals(Long.valueOf(idGrupCooperatiu))).collect(Collectors.toList()).get(0);
@@ -915,7 +918,8 @@ public class GrupsCooperatiusController {
 
         ItemDto item = itemService.getItemById(Long.valueOf(iditem));
 
-        if (item != null && item.getUsuari().getIdusuari().equals(myUser.getIdusuari())) {
+        //if (item != null && item.getUsuari().getIdusuari().equals(myUser.getIdusuari())) {
+        if (item != null) {
             return new ResponseEntity<>(item, HttpStatus.OK);
         }
 
@@ -931,9 +935,10 @@ public class GrupsCooperatiusController {
         List<ValorItemDto> valors = valorItemService.findAllValorsByItem(item);
 
         //Seguretat
-        boolean usuariCorrecte = item.getUsuari().getIdusuari().equals(myUser.getIdusuari());
+        //boolean usuariCorrecte = item.getUsuari().getIdusuari().equals(myUser.getIdusuari());
 
-        if (valors != null && usuariCorrecte) {
+        //if (valors != null && usuariCorrecte) {
+        if (valors != null) {
             return new ResponseEntity<>(valors, HttpStatus.OK);
         }
 
@@ -943,8 +948,8 @@ public class GrupsCooperatiusController {
     @PostMapping("/item/desar")
     @Transactional
     public ResponseEntity<Notificacio> desarItemGrupCooperatiu(@RequestBody String json, HttpServletRequest request) throws Exception {
-        ResponseEntity<UsuariDto> myUserResponse = coreRestClient.getProfile();
-        UsuariDto myUser = myUserResponse.getBody();
+        //ResponseEntity<UsuariDto> myUserResponse = coreRestClient.getProfile();
+        //UsuariDto myUser = myUserResponse.getBody();
 
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
 
@@ -965,7 +970,7 @@ public class GrupsCooperatiusController {
             item = new ItemDto();
         }
 
-        item.setUsuari(myUser);
+        //item.setUsuari(myUser);
         item.setNom(nomItem);
 
         ItemDto i = itemService.save(item);
@@ -1025,7 +1030,7 @@ public class GrupsCooperatiusController {
 
             //Parser csv
             //El caràcter "|" s'ha d'escapar, sinó ho agafa malament com expressió regular
-            final String DELIMITER = Pattern.quote(",");
+            final String DELIMITER = Pattern.quote("\t");
 
             List<List<String>> records = new ArrayList<>();
             BufferedReader br = new BufferedReader(new FileReader(fileName));
@@ -1035,34 +1040,88 @@ public class GrupsCooperatiusController {
                 records.add(Arrays.asList(values));
             }
 
+
+            ValorItemDto valorAtencioDiversitatOrd = valorItemService.findById(6L);
+            ValorItemDto valorAtencioDiversitatNese = valorItemService.findById(7L);
+            ValorItemDto valorAtencioDiversitatNee = valorItemService.findById(8L);
+
+            ValorItemDto valorSexeHome = valorItemService.findById(1L);
+            ValorItemDto valorRendimentMoltBe = valorItemService.findById(5L);
+            ValorItemDto valorMatesA = valorItemService.findById(9L);
+
+            GrupCooperatiuDto grupCooperatiu1 = grupCooperatiuService.getGrupCooperatiuById(1L);
+            GrupCooperatiuDto grupCooperatiu2 = grupCooperatiuService.getGrupCooperatiuById(2L);
+            GrupCooperatiuDto grupCooperatiu3 = grupCooperatiuService.getGrupCooperatiuById(3L);
+            GrupCooperatiuDto grupCooperatiu4 = grupCooperatiuService.getGrupCooperatiuById(4L);
+
+
             //Linia = 0003|15/01/18|13:13:17|000|01;
             for(List<String> linia: records){
-                String nomAlumne = linia.get(0);
-                //ORD - NESE - NEE
-                String atencioDiversitat = linia.get(1);
-                String hora = linia.get(2);
-                String curs = linia.get(5);
-                String metode = linia.get(4);
+                if(linia.size()>=7) {
+                    // Columna A - Nom alumne
+                    String nomAlumne = linia.get(0).trim();
+                    // Columna B - ORD - NESE - NEE (si és blanc serà ORD)
+                    String atencioDiversitat = linia.get(1).trim();
+                    // Columne F - Curs (si és blanc no es té en compte)
+                    String curs = linia.get(5).trim();
+                    //Columna G - Si té grup posar-lo al grup que toca
+                    String grup = linia.get(6).trim();
 
-                if(linia.size()>=10){
-                    MembreDto membre = new MembreDto();
-                    membre.setNom(nomAlumne);
-                    membreService.save(membre);
+                    //Afegir: sexe, rendiment (malament, bé, molt bé), amics, enemics
+                    System.out.println("Nom alumne: " + nomAlumne + " - Atenció diversitat: " + atencioDiversitat + " - Curs: " + curs + " - Grup: " + grup);
+
+                    if (curs.equals("1") || curs.equals("2") || curs.equals("3") || curs.equals("4")) {
+                        MembreDto membre = new MembreDto();
+                        membre.setNom(nomAlumne);
+
+                        if(grup.equals("A")){
+                            membre.setAgrupamentFixe("1");
+                        }
+
+                        if(curs.equals("1")) {
+                            membre.setGrupCooperatiu(grupCooperatiu1);
+                        } else if(curs.equals("2")){
+                            membre.setGrupCooperatiu(grupCooperatiu2);
+                        } else if(curs.equals("3")){
+                            membre.setGrupCooperatiu(grupCooperatiu3);
+                        } else if(curs.equals("4")){
+                            membre.setGrupCooperatiu(grupCooperatiu4);
+                        }
+
+                        MembreDto membreSaved = membreService.save(membre);
+
+                        ValorItemMembreDto vimAtencioDiversitat = new ValorItemMembreDto();
+                        vimAtencioDiversitat.setMembre(membreSaved);
+
+                        if(atencioDiversitat.equals("ORD")){
+                            vimAtencioDiversitat.setValorItem(valorAtencioDiversitatOrd);
+                        } else if(atencioDiversitat.equals("NESE")){
+                            vimAtencioDiversitat.setValorItem(valorAtencioDiversitatNese);
+                        } else if(atencioDiversitat.equals("NEE")){
+                            vimAtencioDiversitat.setValorItem(valorAtencioDiversitatNee);
+                        } else {
+                            vimAtencioDiversitat.setValorItem(valorAtencioDiversitatOrd);
+                        }
+                        valorItemMembreService.save(vimAtencioDiversitat);
+
+                        ValorItemMembreDto vimSexe = new ValorItemMembreDto();
+                        vimSexe.setMembre(membreSaved);
+                        vimSexe.setValorItem(valorSexeHome);
+                        valorItemMembreService.save(vimSexe);
+
+                        ValorItemMembreDto vimRendiment = new ValorItemMembreDto();
+                        vimRendiment.setMembre(membreSaved);
+                        vimRendiment.setValorItem(valorRendimentMoltBe);
+                        valorItemMembreService.save(vimRendiment);
+
+                        if(curs.equals("4")){
+                            ValorItemMembreDto vimMates = new ValorItemMembreDto();
+                            vimMates.setMembre(membreSaved);
+                            vimMates.setValorItem(valorMatesA);
+                            valorItemMembreService.save(vimMates);
+                        }
+                    }
                 }
-
-                /*DiaMarcatgeOriginal diaMarcatgeOriginal = diaMarcatgeOriginalService.findByUsuariAndDataAndHoraAndTipusAndMetode(numMarcatge,data,hora,tipus,metode);
-
-                if(diaMarcatgeOriginal==null){
-                    DiaMarcatgeOriginal d = new DiaMarcatgeOriginal();
-                    d.setUsuari(numMarcatge);
-                    d.setData(data);
-                    d.setHora(hora);
-                    d.setTipus(tipus);
-                    d.setMetode(metode);
-
-                    //System.out.println("Desant dia "+numMarcatge+" - "+data+" - "+hora);
-                    diaMarcatgeOriginalService.save(d);
-                }*/
             }
         } catch (Exception e) {
             e.printStackTrace();

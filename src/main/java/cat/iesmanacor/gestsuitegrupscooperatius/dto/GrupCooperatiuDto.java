@@ -14,6 +14,6 @@ public @Data class GrupCooperatiuDto {
     private Set<ItemGrupCooperatiuDto> itemsGrupsCooperatius = new HashSet<>();
     private Set<MembreDto> membres = new HashSet<>();
     private Set<AgrupamentDto> agrupaments = new HashSet<>();
-    private UsuariDto usuari;
+    //private UsuariDto usuari;
 
 }

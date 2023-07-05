@@ -24,7 +24,7 @@ public @Data class Item {
     private Set<ValorItem> valorItems = new HashSet<>();
 
 
-    @Column(name = "usuari_idusuari", nullable = true)
-    private Long usuari;
+    //@Column(name = "usuari_idusuari", nullable = true)
+    //private Long usuari;
 
 }

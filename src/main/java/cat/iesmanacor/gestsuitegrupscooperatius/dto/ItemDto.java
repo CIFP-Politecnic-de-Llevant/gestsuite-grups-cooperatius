@@ -7,7 +7,8 @@ import lombok.EqualsAndHashCode;
 import java.util.HashSet;
 import java.util.Set;
 
-@EqualsAndHashCode(exclude={"usuari","valorItems","itemsGrupsCooperatius"})
+//@EqualsAndHashCode(exclude={"usuari","valorItems","itemsGrupsCooperatius"})
+@EqualsAndHashCode(exclude={"valorItems","itemsGrupsCooperatius"})
 public @Data class ItemDto {
     private Long idItem;
     private String nom;
@@ -15,6 +16,6 @@ public @Data class ItemDto {
     private Set<ValorItemDto> valorItems = new HashSet<>();
 
     //Microservei CORE
-    private UsuariDto usuari;
+    //private UsuariDto usuari;
 
 }
