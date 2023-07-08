@@ -799,10 +799,12 @@ public class GrupsCooperatiusController {
                     }
                     ValorItemDto valorItem = valorItemService.findById(itemUsuari.getAsJsonObject().get("value").getAsLong());
 
-                    //Esborrem els anteriors si existeixen
+                    //Esborrem els anteriors si existeixen i coincideixen amb l'ítem cercat
                     List<ValorItemMembreDto> valorItemMembreOld = valorItemMembreService.findAllByMembre(membreSaved);
                     for (ValorItemMembreDto valorItemMembreDto : valorItemMembreOld) {
-                        valorItemMembreService.deleteById(valorItemMembreDto.getIdvalorItemMembre());
+                        if(valorItem.getItem().getIdItem().equals(valorItemMembreDto.getValorItem().getItem().getIdItem())) {
+                            valorItemMembreService.deleteById(valorItemMembreDto.getIdvalorItemMembre());
+                        }
                     }
 
                     ValorItemMembreDto valorItemMembre = new ValorItemMembreDto();
