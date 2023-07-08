@@ -718,7 +718,7 @@ public class GrupsCooperatiusController {
         GrupCooperatiuDto grupCooperatiuSaved = grupCooperatiuService.save(grupCooperatiu);
 
         //Reset membres
-        membreService.deleteByGrupCooperatiu(grupCooperatiuSaved);
+        //membreService.deleteByGrupCooperatiu(grupCooperatiuSaved);
 
         //Reset agrupaments
         //agrupamentService.deleteByGrupCooperatiu(grupCooperatiuSaved);
@@ -755,6 +755,8 @@ public class GrupsCooperatiusController {
                 membre.setNom(nomMembre);
                 membre.setAgrupamentFixe(agrupamentFixeMembre);
                 membre.setGrupCooperatiu(grupCooperatiuSaved);
+                membre.setAmics(new HashSet<>());
+                membre.setEnemics(new HashSet<>());
 
                 MembreDto membreSaved = membreService.save(membre);
 
@@ -765,44 +767,52 @@ public class GrupsCooperatiusController {
             //Com que els membres amics i enemics són membres també, tornem a recorrer l'array i l'adjuntem dins els membres
             //Amb els "Valors item membre" passa el mateix, desem primer el membre.
             for (JsonElement jsonMember : jsonMembers) {
-                MembreDto membreSaved = membres.stream().filter(m -> m.getNom().equals(jsonMember.getAsJsonObject().get("nom").getAsString())).collect(Collectors.toList()).get(0);
+                //MembreDto membreSaved = membres.stream().filter(m -> m.getNom().equals(jsonMember.getAsJsonObject().get("nom").getAsString())).collect(Collectors.toList()).get(0);
+                MembreDto membreSaved = membreService.getMembreByNom(jsonMember.getAsJsonObject().get("nom").getAsString());
 
                 //Amics i enemics
-                List<MembreDto> membresAmics = new ArrayList<>();
+                membreSaved.getAmics().clear();
+                membreSaved.getEnemics().clear();
                 JsonArray amics = jsonMember.getAsJsonObject().get("amics").getAsJsonArray();
                 for (JsonElement amic : amics) {
-                    if (membres.stream().filter(m -> m.getNom().equals(amic.getAsString())) != null && membres.stream().filter(m -> m.getNom().equals(amic.getAsString())).collect(Collectors.toList()).size() > 0) {
-                        MembreDto membreAmic = membres.stream().filter(m -> m.getNom().equals(amic.getAsString())).collect(Collectors.toList()).get(0);
-                        membresAmics.add(membreAmic);
+                    if (membres.stream().filter(m -> m.getNom().equals(amic.getAsString())).toList().size() > 0) {
+                        MembreDto membreAmic = membres.stream().filter(m -> m.getNom().equals(amic.getAsString())).toList().get(0);
+                        membreSaved.getAmics().add(membreAmic);
                     }
                 }
 
-                List<MembreDto> membresEnemics = new ArrayList<>();
                 JsonArray enemics = jsonMember.getAsJsonObject().get("enemics").getAsJsonArray();
                 for (JsonElement enemic : enemics) {
-                    if (membres.stream().filter(m -> m.getNom().equals(enemic.getAsString())) != null && membres.stream().filter(m -> m.getNom().equals(enemic.getAsString())).collect(Collectors.toList()).size() > 0) {
-                        MembreDto membreEnemic = membres.stream().filter(m -> m.getNom().equals(enemic.getAsString())).collect(Collectors.toList()).get(0);
-                        membresEnemics.add(membreEnemic);
+                    if (membres.stream().filter(m -> m.getNom().equals(enemic.getAsString())).toList().size() > 0) {
+                        MembreDto membreEnemic = membres.stream().filter(m -> m.getNom().equals(enemic.getAsString())).toList().get(0);
+                        membreSaved.getEnemics().add(membreEnemic);
                     }
                 }
 
-                membreSaved.setAmics(new HashSet<>(membresAmics));
-                membreSaved.setEnemics(new HashSet<>(membresEnemics));
-
+                MembreDto membreAmistatsSaved = membreService.save(membreSaved);
 
                 JsonArray itemsUsuari = jsonMember.getAsJsonObject().get("valorsItemMapped").getAsJsonArray();
                 //List<ValorItemMembreDto> valorsItemMembre = new ArrayList<>();
                 for (JsonElement itemUsuari : itemsUsuari) {
+                    if(
+                            itemsUsuari.isJsonNull() ||
+                            itemUsuari.getAsJsonObject()==null ||
+                            itemUsuari.getAsJsonObject().isJsonNull() ||
+                            itemUsuari.getAsJsonObject().get("value") == null ||
+                            itemUsuari.getAsJsonObject().get("value").isJsonNull()
+                    ) {
+                        continue;
+                    }
                     ValorItemDto valorItem = valorItemService.findById(itemUsuari.getAsJsonObject().get("value").getAsLong());
 
                     //Esborrem els anteriors si existeixen
-                    valorItemMembreService.findByMembreAndValorItem(membreSaved, valorItem).ifPresent(valorItemMembreDto -> {
+                    valorItemMembreService.findByMembreAndValorItem(membreAmistatsSaved, valorItem).ifPresent(valorItemMembreDto -> {
                         valorItemMembreService.deleteById(valorItemMembreDto.getIdvalorItemMembre());
                     });
 
                     ValorItemMembreDto valorItemMembre = new ValorItemMembreDto();
 
-                    valorItemMembre.setMembre(membreSaved);
+                    valorItemMembre.setMembre(membreAmistatsSaved);
                     valorItemMembre.setValorItem(valorItem);
 
                     //valorsItemMembre.add(valorItemMembre);
@@ -811,7 +821,7 @@ public class GrupsCooperatiusController {
                 }
                 //membreSaved.setValorsItemMembre(new HashSet<>(valorsItemMembre));
 
-                membreService.save(membreSaved);
+
             }
         }
 

@@ -26,6 +26,7 @@ public class AgrupamentService {
         return agrupamentRepository.findAllByGrupCooperatiu(grupCooperatiu).stream().map(agrupament->modelMapper.map(agrupament,AgrupamentDto.class)).collect(Collectors.toList());
     }
 
+    @Transactional
     public AgrupamentDto save(AgrupamentDto agrupamentDto) {
         ModelMapper modelMapper = new ModelMapper();
         Agrupament agrupament = modelMapper.map(agrupamentDto,Agrupament.class);

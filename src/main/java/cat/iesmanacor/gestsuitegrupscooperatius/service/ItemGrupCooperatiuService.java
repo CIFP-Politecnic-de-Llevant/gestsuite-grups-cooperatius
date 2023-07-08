@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ public class ItemGrupCooperatiuService {
     @Autowired
     private ItemRepository itemRepository;
 
+    @Transactional
     public ItemGrupCooperatiuDto save(ItemGrupCooperatiuDto itemGrupCooperatiuDto) {
         ModelMapper modelMapper = new ModelMapper();
         /*PropertyMap<ItemGrupCooperatiuDto, ItemGrupCooperatiu> mapperItemGrupCoopeatiu = new PropertyMap<>() {

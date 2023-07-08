@@ -11,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -28,10 +29,12 @@ public class ValorItemMembreService {
         return modelMapper.map(valorItemMembre,ValorItemMembreDto.class);
     }
 
+    @Transactional
     public void deleteById(Long id){
         valorItemMembreRepository.deleteById(id);
     }
 
+    @Transactional
     public ValorItemMembreDto save(ValorItemMembreDto valorItemMembreDto){
         ModelMapper modelMapper = new ModelMapper();
         PropertyMap<ValorItemMembreDto, ValorItemMembre> mapper = new PropertyMap<>() {

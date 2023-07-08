@@ -25,6 +25,7 @@ public class MembreService {
     private ValorItemMembreRepository valorItemMembreRepository;
 
 
+    @Transactional
     public MembreDto save(MembreDto membreDto) {
         ModelMapper modelMapper = new ModelMapper();
         Membre membre = modelMapper.map(membreDto,Membre.class);
@@ -37,6 +38,14 @@ public class MembreService {
         //Ha de ser findById i no getById perquè getById és Lazy
         Membre membre = membreRepository.findById(id).get();
         //return itemRepository.getById(id);
+        return modelMapper.map(membre,MembreDto.class);
+    }
+
+    public MembreDto getMembreByNom(String nom){
+        ModelMapper modelMapper = new ModelMapper();
+        //Ha de ser findById i no getById perquè getById és Lazy
+        List<Membre> membres = membreRepository.findAllByNom(nom);
+        Membre membre = membres.get(0);
         return modelMapper.map(membre,MembreDto.class);
     }
 
@@ -71,10 +80,9 @@ public class MembreService {
         List<Membre> membresGrupsCooperatiu = membreRepository.findAllByGrupCooperatiu(grupCooperatiu);
         membresGrupsCooperatiu.forEach(membre -> valorItemMembreRepository.deleteAllByMembre(membre));
         membresGrupsCooperatiu.forEach(membre -> {
-            membre.setAmics(null);
-            membre.setEnemics(null);
+            membreRepository.deleteByAmicsIsContaining(membre);
+            membreRepository.deleteByEnemicsIsContaining(membre);
         });
-        membreRepository.saveAll(membresGrupsCooperatiu);
         membreRepository.deleteAllByGrupCooperatiu(grupCooperatiu);
     }
 

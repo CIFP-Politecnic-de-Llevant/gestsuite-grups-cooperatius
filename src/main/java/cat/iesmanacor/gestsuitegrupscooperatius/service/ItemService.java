@@ -12,6 +12,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.spi.MatchingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ public class ItemService {
         this.valorItemRepository = valorItemRepository;
     }
 
+    @Transactional
     public ItemDto save(ItemDto itemDto) {
         ModelMapper modelMapper = new ModelMapper();
 
@@ -63,6 +65,7 @@ public class ItemService {
         return itemRepository.findAll().stream().map(item->modelMapper.map(item, ItemDto.class)).collect(Collectors.toList());
     }
 
+    @Transactional
     public void deleteAllValorsByItem(ItemDto itemDto){
         ModelMapper modelMapper = new ModelMapper();
         Item item = modelMapper.map(itemDto,Item.class);

@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,6 +44,7 @@ public class ValorItemService {
         return valorItemRepository.findAllByItem(item).stream().map(valorItem->modelMapper.map(valorItem, ValorItemDto.class)).collect(Collectors.toList());
     }
 
+    @Transactional
     public ValorItemDto save(ValorItemDto valorItemDto){
         ModelMapper modelMapper = new ModelMapper();
         ValorItem valorItem = modelMapper.map(valorItemDto,ValorItem.class);
