@@ -6,6 +6,8 @@ import lombok.*;
 import java.util.HashSet;
 import java.util.Set;
 
+@ToString(exclude={"amics","enemics"})
+@EqualsAndHashCode(exclude={"amics","enemics"})
 @Entity
 @Table(name = "im_membre")
 public @Data class Membre {

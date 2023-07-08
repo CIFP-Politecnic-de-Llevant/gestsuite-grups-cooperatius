@@ -16,7 +16,9 @@ public @Data class MembreDto implements Comparable<MembreDto>{
     private String agrupamentFixe;
     private AgrupamentDto agrupament;
     private Set<ValorItemMembreDto> valorsItemMembre = new HashSet<>();
+    @JsonIgnoreProperties({"amics","enemics"})
     private Set<MembreDto> amics = new HashSet<>();
+    @JsonIgnoreProperties({"amics","enemics"})
     private Set<MembreDto> enemics = new HashSet<>();
     private GrupCooperatiuDto grupCooperatiu;
 
