@@ -3,10 +3,12 @@ package cat.iesmanacor.gestsuitegrupscooperatius.dto;
 import cat.iesmanacor.gestsuitegrupscooperatius.dto.gestib.UsuariDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
 
+@ToString(exclude={"itemsGrupsCooperatius","agrupaments","membres"})
 @EqualsAndHashCode(exclude={"itemsGrupsCooperatius","agrupaments","membres"})
 public @Data class GrupCooperatiuDto {
     private Long idgrupCooperatiu;

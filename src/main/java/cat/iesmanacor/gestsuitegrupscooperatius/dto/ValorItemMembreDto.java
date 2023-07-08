@@ -3,7 +3,9 @@ package cat.iesmanacor.gestsuitegrupscooperatius.dto;
 import cat.iesmanacor.gestsuitegrupscooperatius.model.ValorItemMembre;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+@ToString(exclude={"valorItem","membre"})
 @EqualsAndHashCode(exclude={"valorItem","membre"})
 public @Data class ValorItemMembreDto implements Comparable<ValorItemMembreDto> {
     private Long idvalorItemMembre;

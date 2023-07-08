@@ -13,4 +13,5 @@ public interface ValorItemMembreRepository extends JpaRepository<ValorItemMembre
     ValorItemMembre findByMembreAndValorItem(Membre membre, ValorItem valorItem);
     List<ValorItemMembre> findAllByMembre(Membre membre);
     void deleteAllByMembre(Membre membre);
+    ValorItemMembre findByMembre_IdmembreAndValorItem_IdvalorItem(Long idMembre, Long idValorItem);
 }

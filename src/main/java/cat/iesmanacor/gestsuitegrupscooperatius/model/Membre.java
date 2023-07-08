@@ -1,8 +1,7 @@
 package cat.iesmanacor.gestsuitegrupscooperatius.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;

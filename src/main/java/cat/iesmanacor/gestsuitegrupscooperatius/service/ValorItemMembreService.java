@@ -37,13 +37,6 @@ public class ValorItemMembreService {
     @Transactional
     public ValorItemMembreDto save(ValorItemMembreDto valorItemMembreDto){
         ModelMapper modelMapper = new ModelMapper();
-        PropertyMap<ValorItemMembreDto, ValorItemMembre> mapper = new PropertyMap<>() {
-            protected void configure() {
-                map().getMembre().setAmics(new HashSet<>());
-                map().getMembre().setEnemics(new HashSet<>());
-            }
-        };
-        modelMapper.addMappings(mapper);
         ValorItemMembre valorItemMembre = modelMapper.map(valorItemMembreDto,ValorItemMembre.class);
         ValorItemMembre valorItemMembreSaved = valorItemMembreRepository.save(valorItemMembre);
         return modelMapper.map(valorItemMembreSaved,ValorItemMembreDto.class);
@@ -59,6 +52,15 @@ public class ValorItemMembreService {
         }
         ValorItemMembreDto valorItemMembreDto = modelMapper.map(valorItemMembre,ValorItemMembreDto.class);
         return Optional.ofNullable(valorItemMembreDto);
+    }
+
+    public ValorItemMembreDto findByMembreAndValorItem(Long idMembre, Long idValorItem){
+        ModelMapper modelMapper = new ModelMapper();
+        ValorItemMembre valorItemMembre = valorItemMembreRepository.findByMembre_IdmembreAndValorItem_IdvalorItem(idMembre,idValorItem);
+        if(valorItemMembre == null){
+            return null;
+        }
+        return modelMapper.map(valorItemMembre,ValorItemMembreDto.class);
     }
 
     public List<ValorItemMembreDto> findAllByMembre(MembreDto membreDto){
