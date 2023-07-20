@@ -4,6 +4,8 @@ import cat.iesmanacor.common.model.Notificacio;
 import cat.iesmanacor.common.model.NotificacioTipus;
 import cat.iesmanacor.gestsuitegrupscooperatius.dto.*;
 import cat.iesmanacor.gestsuitegrupscooperatius.dto.gestib.UsuariDto;
+import cat.iesmanacor.gestsuitegrupscooperatius.model.ItemGrupCooperatiu;
+import cat.iesmanacor.gestsuitegrupscooperatius.model.Membre;
 import cat.iesmanacor.gestsuitegrupscooperatius.model.ValorItem;
 import cat.iesmanacor.gestsuitegrupscooperatius.model.ValorItemMembre;
 import cat.iesmanacor.gestsuitegrupscooperatius.restclient.CoreRestClient;
@@ -184,10 +186,12 @@ public class GrupsCooperatiusController {
 
             ItemDto it = itemService.getItemById(itemGrupCooperatiuJSON.getAsJsonObject().get("item").getAsJsonObject().get("id").getAsLong());
             Integer ponderacio = itemGrupCooperatiuJSON.getAsJsonObject().get("percentatge").getAsInt();
+            List<ValorItemDto> valorsItemDto = valorItemService.findAllValorsByItem(it);
 
             ItemGrupCooperatiuDto itemGrupCooperatiu = new ItemGrupCooperatiuDto();
             itemGrupCooperatiu.setItem(it);
             itemGrupCooperatiu.setPercentatge(ponderacio);
+            itemGrupCooperatiu.getItem().setValorItems(new HashSet<>(valorsItemDto));
 
             itemsGrupCooperatiu.add(itemGrupCooperatiu);
         }
@@ -254,7 +258,7 @@ public class GrupsCooperatiusController {
             return new ResponseEntity<>(notificacio, HttpStatus.OK);
         }
 
-        List<AgrupamentDto> agrupaments = mesclaMembres(membres, numGrups, numIteracions, percentatgeAmics, percentatgeEnemics);
+        List<AgrupamentDto> agrupaments = mesclaMembres(itemsGrupCooperatiu,membres, numGrups, numIteracions, percentatgeAmics, percentatgeEnemics);
         List<AgrupamentDto> result = new ArrayList<>();
         agrupaments.forEach(a->{
             AgrupamentDto agrupament = new AgrupamentDto();
@@ -284,82 +288,9 @@ public class GrupsCooperatiusController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    /* TODO: Acabar la segona manera de fer la mescla per aproximació */
-    private List<AgrupamentDto> mesclaMembres2(List<MembreDto> membres, int numGrups, int numIteracions, int percentatgeAmics, int percentatgeEnemics) {
+    private List<AgrupamentDto> mesclaMembres(List<ItemGrupCooperatiuDto> itemsGrupCooperatiuDto, List<MembreDto> membres, int numGrups, int numIteracions, int percentatgeAmics, int percentatgeEnemics) {
         List<MembreDto>[] millorsAgrupacions = new ArrayList[numGrups];
         Double millorPuntuacio = null;
-
-        Collections.shuffle(membres);
-
-        List<MembreDto>[] grups = new ArrayList[numGrups];
-        for (int j = 0; j < grups.length; j++) {
-            grups[j] = new ArrayList<>();
-        }
-
-        //Inserim membres fixes
-        for (MembreDto m : membres) {
-            if (m.getAgrupamentFixe() != null && !m.getAgrupamentFixe().isEmpty()) {
-                //Elegim un grup a l'atzar també
-                String agrupamentFixeRaw = m.getAgrupamentFixe().replaceAll("\\s+", "");
-                String[] agrupamentsFixes = agrupamentFixeRaw.split(",");
-
-                int rnd = new Random().nextInt(agrupamentsFixes.length);
-                int agrupament = Integer.parseInt(agrupamentsFixes[rnd]);
-
-                grups[agrupament - 1].add(m);
-            }
-        }
-        //System.out.println("Max membres fixes: "+maxMembresFixes);
-
-        //Acabem d'inserir la resta de membres
-        for (MembreDto m : membres) {
-            if (m.getAgrupamentFixe() == null || m.getAgrupamentFixe().isEmpty()) {
-                Integer minGrup = null;
-                int index = 0;
-                int i = 0;
-                for (List<MembreDto> grup : grups) {
-                    if (minGrup == null || grup.size() <= minGrup) {
-                        minGrup = grup.size();
-                        index = i;
-                    }
-                    i++;
-                }
-                grups[index].add(m);
-            }
-        }
-
-        int idx = 0;
-        double puntuacio = 0;
-        while (idx < numIteracions || millorPuntuacio==0.0){
-            for (List<MembreDto> grup : grups) {
-                for(MembreDto membre: grup){
-                    if (membre.getAmics() != null && membre.getAmics().size() > 0) {
-                        double numAmics = 0;
-                        for (MembreDto amic : membre.getAmics()) {
-                            for (MembreDto membreGrup : grup) {
-                                if (amic.getNom().equals(membreGrup.getNom())) {
-                                    numAmics++;
-                                }
-                            }
-                        }
-
-                        if(numAmics==0){
-
-                        }
-
-
-                    }
-                }
-            }
-            idx++;
-        }
-        return null;
-    }
-
-    private List<AgrupamentDto> mesclaMembres(List<MembreDto> membres, int numGrups, int numIteracions, int percentatgeAmics, int percentatgeEnemics) {
-        List<MembreDto>[] millorsAgrupacions = new ArrayList[numGrups];
-        Double millorPuntuacio = null;
-        Double millorPuntuacioTamanyGrup = null;
 
         int infoIteracio = numIteracions / 100;
         for (int k = 0; k < numIteracions; k++) {
@@ -417,28 +348,14 @@ public class GrupsCooperatiusController {
 
             double puntuacio = 0;
 
-           /* double[] tamanyGrups = new double[grups.length];
-            for (int j = 0; j < grups.length; j++) {
-                tamanyGrups[j] = grups[j].size();
-            }
-            double puntuacioTamanyGrups = mathService.standardDeviation(tamanyGrups);
-            puntuacio += puntuacioTamanyGrups * 100000;
-
-            //Optimització per podar els grups no homogenis
-            if (millorPuntuacioTamanyGrup == null || puntuacioTamanyGrups <= millorPuntuacioTamanyGrup) {
-                millorPuntuacioTamanyGrup = puntuacioTamanyGrups;
-            } else {
-                continue;
-            }*/
-
-            /*for(ItemGrupCooperatiu itemGrupCooperatiu: itemsGrupCooperatiu){
-                for(ValorItem valorItem: itemGrupCooperatiu.getItem().getValorItems()){
+            for(ItemGrupCooperatiuDto itemGrupCooperatiu: itemsGrupCooperatiuDto){
+                for(ValorItemDto valorItem: itemGrupCooperatiu.getItem().getValorItems()){
                     List<Double> valorsItemsComptador = new ArrayList<>();
 
-                    for(List<Membre> grup: grups) {
+                    for(List<MembreDto> grup: grups) {
                         Double count = 0.0;
-                        for (Membre membre : grup) {
-                            for (ValorItemMembre vim : membre.getValorsItemMembre()) {
+                        for (MembreDto membre : grup) {
+                            for (ValorItemMembreDto vim : membre.getValorsItemMembre()) {
                                 if (vim.getValorItem().getIdvalorItem().equals(valorItem.getIdvalorItem())) {
                                     count++;
                                 }
@@ -454,12 +371,15 @@ public class GrupsCooperatiusController {
                         idx++;
                     }
 
-                    //System.out.println("Puntuació abans item "+k+": "+ puntuacio);
-                    puntuacio += mathService.standardDeviation(valorsItemsCountPrimitive)*itemGrupCooperatiu.getPercentatge()*0.01;
+                    //log.info("Desviació estàndard "+k+": "+ mathService.standardDeviation(valorsItemsCountPrimitive));
+                    double desviacio = mathService.standardDeviation(valorsItemsCountPrimitive);
+                    double mitjana = mathService.mean(valorsItemsCountPrimitive);
+                    double percentatgeDesviacio = (desviacio/mitjana)*100;
+                    puntuacio += percentatgeDesviacio * (itemGrupCooperatiu.getPercentatge()*0.01);
 
                     //System.out.println("Puntuació despres item"+ puntuacio);
                 }
-            }*/
+            }
 
 
             //Amistats i enemistats
@@ -502,6 +422,8 @@ public class GrupsCooperatiusController {
                         grupAmics[idxgrup] = (numAmics * 100) / membre.getAmics().size();
                         if (teAmic) {
                             grupTeAmics[idxgrup] = 100;
+                        } else if(membre.getAmics().size()==0){
+                            grupTeAmics[idxgrup] = 100;
                         }
                     } else {
                         grupAmics[idxgrup] = 100;
@@ -540,22 +462,18 @@ public class GrupsCooperatiusController {
                 idx++;
             }
 
-            // System.out.println("Puntuació abans"+ puntuacio);
             if (mathService.mean(amics) > 0) {
-                //puntuacio += ( (puntuacio/percentatgeAmics) /(mathService.mean(amics)*0.01))*0.1;
-                //puntuacio -= mathService.mean(amics)*(itemsGrupCooperatiu.size()+grups.length)*percentatgeAmics*0.01*0.1;
-                //puntuacio -= mathService.mean(teAmics)*(itemsGrupCooperatiu.size()+grups.length)*percentatgeAmics*0.01*0.9;
-                puntuacio -= mathService.mean(teAmics) * percentatgeAmics;
-            } else {
-                //puntuacio *= percentatgeAmics;
+                double desviacio = mathService.standardDeviation(teAmics);
+                double mitjana = mathService.mean(teAmics);
+                double percentatgeDesviacio = (desviacio/mitjana)*100;
+                puntuacio += percentatgeDesviacio * (percentatgeAmics*0.01);
             }
-            //System.out.println("Puntuació despres"+ puntuacio);
 
             if (mathService.mean(enemics) > 0) {
-                //puntuacio -= mathService.mean(enemics)*(itemsGrupCooperatiu.size()+grups.length)*percentatgeEnemics*0.01;
-                puntuacio -= mathService.mean(enemics) * percentatgeEnemics;
-            } else {
-                //puntuacio *= percentatgeEnemics;
+                double desviacio = mathService.standardDeviation(teAmics);
+                double mitjana = mathService.mean(teAmics);
+                double percentatgeDesviacio = (desviacio/mitjana)*100;
+                puntuacio += percentatgeDesviacio * (percentatgeEnemics*0.01);
             }
 
 
@@ -573,7 +491,7 @@ public class GrupsCooperatiusController {
                     Set membresSet = new HashSet(millorsAgrupacions[j]);
                     agrupament.setMembres(membresSet);
 
-                    log.info("Grup " + (j + 1));
+                    //log.info("Grup " + (j + 1));
                     for (MembreDto membre : agrupament.getMembres()) {
                         String result = membre.getNom();
 
@@ -607,13 +525,13 @@ public class GrupsCooperatiusController {
                             result += " Enemics: " + numEnemics + "/" + membre.getEnemics().size();
                         }
 
-                        log.info(result);
+                        //log.info(result);
                     }
-                    log.info("Membres sense cap amic: " + membresSenseAmics);
-                    log.info("Membres amb algun enemic" + membresAmbEnemics);
-                    log.info("---------------------------");
-                    log.info("");
-                    log.info("");
+                    //log.info("Membres sense cap amic: " + membresSenseAmics);
+                    //log.info("Membres amb algun enemic" + membresAmbEnemics);
+                    //log.info("---------------------------");
+                    //log.info("");
+                    //log.info("Puntuació provisional", puntuacio);
                 }
             }
         }
