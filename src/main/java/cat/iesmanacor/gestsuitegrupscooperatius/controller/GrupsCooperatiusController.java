@@ -426,8 +426,6 @@ public class GrupsCooperatiusController {
                         grupAmics[idxgrup] = (numAmics * 100) / membre.getAmics().size();
                         if (teAmic) {
                             grupTeAmics[idxgrup] = 100;
-                        } else if(membre.getAmics().size()==0){
-                            grupTeAmics[idxgrup] = 100;
                         }
                     } else {
                         grupAmics[idxgrup] = 100;
