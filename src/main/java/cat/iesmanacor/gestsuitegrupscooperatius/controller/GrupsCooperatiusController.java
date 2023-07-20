@@ -375,7 +375,8 @@ public class GrupsCooperatiusController {
                     double desviacio = mathService.standardDeviation(valorsItemsCountPrimitive);
                     double mitjana = mathService.mean(valorsItemsCountPrimitive);
                     double percentatgeDesviacio = (desviacio/mitjana)*100;
-                    puntuacio += percentatgeDesviacio * (itemGrupCooperatiu.getPercentatge()*0.01);
+                    //Només comptem el percentatge de l'ítem. Si té 3 valors, cada valor valdrà un 33% de la puntuació
+                    puntuacio += (percentatgeDesviacio * (itemGrupCooperatiu.getPercentatge()*0.01))/itemGrupCooperatiu.getItem().getValorItems().size();
 
                     //System.out.println("Puntuació despres item"+ puntuacio);
                 }
@@ -470,8 +471,8 @@ public class GrupsCooperatiusController {
             }
 
             if (mathService.mean(enemics) > 0) {
-                double desviacio = mathService.standardDeviation(teAmics);
-                double mitjana = mathService.mean(teAmics);
+                double desviacio = mathService.standardDeviation(enemics);
+                double mitjana = mathService.mean(enemics);
                 double percentatgeDesviacio = (desviacio/mitjana)*100;
                 puntuacio += percentatgeDesviacio * (percentatgeEnemics*0.01);
             }
@@ -527,12 +528,12 @@ public class GrupsCooperatiusController {
 
                         //log.info(result);
                     }
-                    //log.info("Membres sense cap amic: " + membresSenseAmics);
-                    //log.info("Membres amb algun enemic" + membresAmbEnemics);
-                    //log.info("---------------------------");
-                    //log.info("");
-                    //log.info("Puntuació provisional", puntuacio);
                 }
+                log.info("Membres sense cap amic: " + membresSenseAmics);
+                log.info("Membres amb algun enemic: " + membresAmbEnemics);
+                log.info("Puntuació provisional: "+ puntuacio);
+                log.info("---------------------------");
+                log.info("");
             }
         }
 
