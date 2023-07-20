@@ -384,7 +384,7 @@ public class GrupsCooperatiusController {
 
 
             //Amistats i enemistats
-            double[] amics = new double[grups.length];
+            /*double[] amics = new double[grups.length];
             double[] teAmics = new double[grups.length];
             double[] enemics = new double[grups.length];
 
@@ -392,7 +392,10 @@ public class GrupsCooperatiusController {
                 amics[i] = 0;
                 teAmics[i] = 0;
                 enemics[i] = 0;
-            }
+            }*/
+            List<Double> amics = new ArrayList<>();
+            List<Double> teAmics = new ArrayList<>();
+            List<Double> enemics = new ArrayList<>();
 
             int idx = 0;
             for (List<MembreDto> grup : grups) {
@@ -456,23 +459,42 @@ public class GrupsCooperatiusController {
                     idxgrup++;
                 }
 
-                amics[idx] = mathService.mean(grupAmics);
-                teAmics[idx] = mathService.mean(grupTeAmics);
-                enemics[idx] = mathService.mean(grupEnemics);
+                amics.addAll(Arrays.stream(grupAmics).boxed().toList());
+                teAmics.addAll(Arrays.stream(grupTeAmics).boxed().toList());
+                enemics.addAll(Arrays.stream(grupEnemics).boxed().toList());
 
                 idx++;
             }
 
-            if (mathService.mean(amics) > 0) {
-                double desviacio = mathService.standardDeviation(teAmics);
-                double mitjana = mathService.mean(teAmics);
+            double[] amicsPrimitive = new double[amics.size()];
+            double[] teAmicsPrimitive = new double[teAmics.size()];
+            double[] enemicsPrimitive = new double[enemics.size()];
+            idx = 0;
+            for(Double d: amics){
+                amicsPrimitive[idx] = d;
+                idx++;
+            }
+            idx = 0;
+            for(Double d: teAmics){
+                teAmicsPrimitive[idx] = d;
+                idx++;
+            }
+            idx = 0;
+            for(Double d: enemics){
+                enemicsPrimitive[idx] = d;
+                idx++;
+            }
+
+            if (mathService.mean(teAmicsPrimitive) > 0) {
+                double desviacio = mathService.standardDeviation(teAmicsPrimitive);
+                double mitjana = mathService.mean(teAmicsPrimitive);
                 double percentatgeDesviacio = (desviacio/mitjana)*100;
                 puntuacio += percentatgeDesviacio * (percentatgeAmics*0.01);
             }
 
-            if (mathService.mean(enemics) > 0) {
-                double desviacio = mathService.standardDeviation(enemics);
-                double mitjana = mathService.mean(enemics);
+            if (mathService.mean(enemicsPrimitive) > 0) {
+                double desviacio = mathService.standardDeviation(enemicsPrimitive);
+                double mitjana = mathService.mean(enemicsPrimitive);
                 double percentatgeDesviacio = (desviacio/mitjana)*100;
                 puntuacio += percentatgeDesviacio * (percentatgeEnemics*0.01);
             }
