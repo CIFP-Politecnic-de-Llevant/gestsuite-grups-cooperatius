@@ -376,7 +376,8 @@ public class GrupsCooperatiusController {
                     double mitjana = mathService.mean(valorsItemsCountPrimitive);
                     double percentatgeDesviacio = (desviacio/mitjana)*100;
 
-                    if(itemGrupCooperatiu.getItem().getIdItem().equals(4L)) {
+                    // 4L = Mates 4t ESO
+                    if(!itemGrupCooperatiu.getItem().getIdItem().equals(4L)) {
                         //Només comptem el percentatge de l'ítem. Si té 3 valors, cada valor valdrà un 33% de la puntuació
                         puntuacio += (percentatgeDesviacio * (itemGrupCooperatiu.getPercentatge() * 0.01)) / itemGrupCooperatiu.getItem().getValorItems().size();
                     } else {
