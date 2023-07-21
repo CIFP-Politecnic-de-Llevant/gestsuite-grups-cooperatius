@@ -375,10 +375,14 @@ public class GrupsCooperatiusController {
                     double desviacio = mathService.standardDeviation(valorsItemsCountPrimitive);
                     double mitjana = mathService.mean(valorsItemsCountPrimitive);
                     double percentatgeDesviacio = (desviacio/mitjana)*100;
-                    //Només comptem el percentatge de l'ítem. Si té 3 valors, cada valor valdrà un 33% de la puntuació
-                    puntuacio += (percentatgeDesviacio * (itemGrupCooperatiu.getPercentatge()*0.01))/itemGrupCooperatiu.getItem().getValorItems().size();
 
-                    //System.out.println("Puntuació despres item"+ puntuacio);
+                    if(itemGrupCooperatiu.getItem().getIdItem().equals(4L)) {
+                        //Només comptem el percentatge de l'ítem. Si té 3 valors, cada valor valdrà un 33% de la puntuació
+                        puntuacio += (percentatgeDesviacio * (itemGrupCooperatiu.getPercentatge() * 0.01)) / itemGrupCooperatiu.getItem().getValorItems().size();
+                    } else {
+                        //Si és id 4 (Mates 4t ESO) volem el grup que sigui 30%  d'un tipus i 70% de l'altre, per tant, la desviacio ha de ser d'un 33%
+                        puntuacio += ( Math.abs(percentatgeDesviacio-33) * (itemGrupCooperatiu.getPercentatge() * 0.01)) / itemGrupCooperatiu.getItem().getValorItems().size();
+                    }
                 }
             }
 
