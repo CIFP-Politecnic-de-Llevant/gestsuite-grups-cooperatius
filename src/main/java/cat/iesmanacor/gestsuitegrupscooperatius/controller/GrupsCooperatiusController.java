@@ -167,7 +167,7 @@ public class GrupsCooperatiusController {
 
 
     @PostMapping("/genetica")
-    public ResponseEntity<?> getMesclaGrupsGenetica(@RequestBody String json) {
+    public ResponseEntity<?> getMesclaGrupsGenetica(@RequestBody String json) throws CloneNotSupportedException {
         //int numIteracions = 10;
 
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
@@ -288,7 +288,8 @@ public class GrupsCooperatiusController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    private List<AgrupamentDto> mesclaMembres(List<ItemGrupCooperatiuDto> itemsGrupCooperatiuDto, List<MembreDto> membres, int numGrups, int numIteracions, int percentatgeAmics, int percentatgeEnemics) {
+
+    private List<AgrupamentDto> mesclaMembres(List<ItemGrupCooperatiuDto> itemsGrupCooperatiuDto, List<MembreDto> membres, int numGrups, int numIteracions, int percentatgeAmics, int percentatgeEnemics) throws CloneNotSupportedException {
         List<MembreDto>[] millorsAgrupacions = new ArrayList[numGrups];
         Double millorPuntuacio = null;
 
@@ -348,11 +349,11 @@ public class GrupsCooperatiusController {
 
             double puntuacio = 0;
 
-            for(ItemGrupCooperatiuDto itemGrupCooperatiu: itemsGrupCooperatiuDto){
-                for(ValorItemDto valorItem: itemGrupCooperatiu.getItem().getValorItems()){
+            for (ItemGrupCooperatiuDto itemGrupCooperatiu : itemsGrupCooperatiuDto) {
+                for (ValorItemDto valorItem : itemGrupCooperatiu.getItem().getValorItems()) {
                     List<Double> valorsItemsComptador = new ArrayList<>();
 
-                    for(List<MembreDto> grup: grups) {
+                    for (List<MembreDto> grup : grups) {
                         Double count = 0.0;
                         for (MembreDto membre : grup) {
                             for (ValorItemMembreDto vim : membre.getValorsItemMembre()) {
@@ -361,12 +362,12 @@ public class GrupsCooperatiusController {
                                 }
                             }
                         }
-                        valorsItemsComptador.add( count * valorItem.getPes());
+                        valorsItemsComptador.add(count * valorItem.getPes());
                     }
 
                     double[] valorsItemsCountPrimitive = new double[valorsItemsComptador.size()];
                     int idx = 0;
-                    for(Double d: valorsItemsComptador){
+                    for (Double d : valorsItemsComptador) {
                         valorsItemsCountPrimitive[idx] = d;
                         idx++;
                     }
@@ -374,21 +375,125 @@ public class GrupsCooperatiusController {
                     //log.info("Desviació estàndard "+k+": "+ mathService.standardDeviation(valorsItemsCountPrimitive));
                     double desviacio = mathService.standardDeviation(valorsItemsCountPrimitive);
                     double mitjana = mathService.mean(valorsItemsCountPrimitive);
-                    double percentatgeDesviacio = (desviacio/mitjana)*100;
+                    double percentatgeDesviacio = (desviacio / mitjana) * 100;
 
                     // 4L = Mates 4t ESO
-                    if(!itemGrupCooperatiu.getItem().getIdItem().equals(4L)) {
+                    if (!itemGrupCooperatiu.getItem().getIdItem().equals(4L)) {
                         //Només comptem el percentatge de l'ítem. Si té 3 valors, cada valor valdrà un 33% de la puntuació
                         puntuacio += (percentatgeDesviacio * (itemGrupCooperatiu.getPercentatge() * 0.01)) / itemGrupCooperatiu.getItem().getValorItems().size();
                     } else {
                         //Si és id 4 (Mates 4t ESO) volem el grup que sigui 30%  d'un tipus i 70% de l'altre, per tant, la desviacio ha de ser d'un 33%
-                        puntuacio += ( Math.abs(percentatgeDesviacio-33) * (itemGrupCooperatiu.getPercentatge() * 0.01)) / itemGrupCooperatiu.getItem().getValorItems().size();
+                        puntuacio += (Math.abs(percentatgeDesviacio - 33) * (itemGrupCooperatiu.getPercentatge() * 0.01)) / itemGrupCooperatiu.getItem().getValorItems().size();
                     }
                 }
             }
 
 
             //Amistats i enemistats
+
+            //Fem 100 iteracions perquè no es quedi bloquejat
+        for(int i = 0; i < 20; i++){
+            //System.out.println("ITERACIÓ "+i+" PER A CANVIAR AMICS");
+
+            //Mirem d'ajustar els grups d'amic i enemics
+            List<MembreDto>[] grupsAux = new ArrayList[numGrups];
+            for (int j = 0; j < grupsAux.length; j++) {
+                grupsAux[j] = new ArrayList<>();
+                for (MembreDto membre : grups[j]) {
+                    grupsAux[j].add(membre.clone());
+                }
+            }
+
+            int numGrup = 1;
+            List<String> nomCandidats = new ArrayList<>();
+            List<String> nomMembresCanviats = new ArrayList<>();
+            boolean candidatTrobat = false;
+            for (List<MembreDto> grupAux : grupsAux) {
+                for (MembreDto membre : grupAux) {
+                    if (membre.getAmics() != null && membre.getAmics().size() > 0) {
+                        boolean teAmic = false;
+                        for (MembreDto amic : membre.getAmics()) {
+                            for (MembreDto membreGrup : grupAux) {
+                                if (amic.getNom().equals(membreGrup.getNom())) {
+                                    teAmic = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!teAmic) {
+                            //Aqui hem de fer el SWAP a grup
+
+                            int numGrupCandidat = 1;
+                            int numGrupAux = 1;
+                            //El candidat ideal no té amics ni enemics i ha de poder anar al grup del membre
+                            MembreDto candidat = null;
+                            for (List<MembreDto> grupAux2 : grupsAux) {
+                                if (numGrupCandidat != numGrup && candidat == null) {
+                                    for (MembreDto membre2 : grupAux2) {
+                                        //Comprovem si el futur candidat (membre2)  tindrà amics si canvia de grup.
+                                        boolean teAmicAux = false;
+                                        for (MembreDto amicAux : membre2.getAmics()) {
+                                            for (MembreDto membreGrupAux : grupAux2) {
+                                                if (amicAux.getNom().equals (membreGrupAux.getNom())) {
+                                                    teAmicAux = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+
+                                        if (
+                                                (membre.getAgrupamentFixe() == null || membre.getAgrupamentFixe().isEmpty() || membre.getAgrupamentFixe().contains(String.valueOf(numGrupCandidat))) &&
+                                                        (!nomCandidats.contains(membre2.getNom())) &&
+                                                        (!nomMembresCanviats.contains(membre.getNom())) &&
+                                                        (membre2.getAmics() == null || membre2.getAmics().size() == 0 || !teAmicAux) &&
+                                                        (membre2.getEnemics() == null || membre2.getEnemics().size() == 0) &&
+                                                        (membre2.getAgrupamentFixe() == null || membre2.getAgrupamentFixe().isEmpty() || membre2.getAgrupamentFixe().contains(String.valueOf(numGrup)))
+                                        ) {
+                                            candidat = membre2.clone();
+                                            numGrupCandidat = numGrupAux;
+                                            break;
+                                        }
+                                    }
+                                }
+                                numGrupAux++;
+                            }
+                            //Si hem trobat candidat fem el swap
+                            if (candidat != null) {
+                                candidatTrobat = true;
+                                MembreDto finalCandidat = candidat;
+
+                                //System.out.println("SWAP: "+membre.getNom()+" ("+numGrup+") <-> "+candidat.getNom()+" ("+numGrupCandidat+")");
+                                nomCandidats.add(finalCandidat.getNom());
+                                nomMembresCanviats.add(membre.getNom());
+
+                                boolean membreRemoved = grups[numGrup - 1].removeIf(m -> m.getNom().equals(membre.getNom()));
+                                grups[numGrupCandidat - 1].add(membre);
+
+                                boolean candidatRemoved = grups[numGrupCandidat - 1].removeIf(m -> m.getNom().equals(finalCandidat.getNom()));
+                                grups[numGrup - 1].add(finalCandidat);
+
+                                if (!membreRemoved) {
+                                    System.out.println("ALERTA! MEMBRE " + membre.getNom() + " (" + numGrup + ") NO ELIMINAT");
+                                }
+                                if (!candidatRemoved) {
+                                    System.out.println("ALERTA! CANDIDAT " + finalCandidat.getNom() + " (" + numGrupCandidat + ") NO ELIMINAT");
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+                if(candidatTrobat){
+                    break;
+                }
+                numGrup++;
+            }
+
+        }
+
+
+
             /*double[] amics = new double[grups.length];
             double[] teAmics = new double[grups.length];
             double[] enemics = new double[grups.length];

@@ -1,5 +1,6 @@
 package cat.iesmanacor.gestsuitegrupscooperatius.dto;
 
+import cat.iesmanacor.gestsuitegrupscooperatius.dto.gestib.UsuariDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,7 +11,7 @@ import java.util.Set;
 
 @ToString(exclude={"agrupament","valorsItemMembre","amics","enemics","grupCooperatiu"})
 @EqualsAndHashCode(exclude={"agrupament","valorsItemMembre","amics","enemics","grupCooperatiu"})
-public @Data class MembreDto implements Comparable<MembreDto>{
+public @Data class MembreDto implements Comparable<MembreDto>, Cloneable{
     private Long idmembre;
     private String nom;
     private String agrupamentFixe;
@@ -25,5 +26,9 @@ public @Data class MembreDto implements Comparable<MembreDto>{
     @Override
     public int compareTo(MembreDto o) {
         return this.getNom().compareTo(o.getNom());
+    }
+
+    public MembreDto clone() throws CloneNotSupportedException {
+        return (MembreDto) super.clone();
     }
 }
