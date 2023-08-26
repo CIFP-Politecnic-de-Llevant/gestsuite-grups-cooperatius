@@ -1,7 +1,7 @@
 FROM maven:3-amazoncorretto-17 as develop-stage-grupscooperatius
 WORKDIR /app
 
-COPY /config/iesmanacor-e0d4f26d9c2c.json /resources/iesmanacor-e0d4f26d9c2c.json
+COPY /config/ /resources/
 
 COPY /api/gestsuite-common/ /external/
 RUN mvn clean compile install -f /external/pom.xml
@@ -22,5 +22,5 @@ RUN mvn clean package -f pom.xml
 
 FROM amazoncorretto:17-alpine-jdk as production-stage-grupscooperatius
 COPY --from=build-stage-grupscooperatius /resources/target/grups-cooperatius-0.0.1-SNAPSHOT.jar grupscooperatius.jar
-COPY /config/iesmanacor-e0d4f26d9c2c.json /resources/iesmanacor-e0d4f26d9c2c.json
+COPY /config/ /resources/
 ENTRYPOINT ["java","-jar","/grupscooperatius.jar"]
