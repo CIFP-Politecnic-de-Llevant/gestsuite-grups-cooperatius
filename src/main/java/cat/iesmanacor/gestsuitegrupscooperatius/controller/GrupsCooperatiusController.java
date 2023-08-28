@@ -362,7 +362,8 @@ public class GrupsCooperatiusController {
                                 }
                             }
                         }
-                        valorsItemsComptador.add(count * valorItem.getPes());
+                        //valorsItemsComptador.add(count * valorItem.getPes());
+                        valorsItemsComptador.add(count);
                     }
 
                     double[] valorsItemsCountPrimitive = new double[valorsItemsComptador.size()];
@@ -392,7 +393,7 @@ public class GrupsCooperatiusController {
             //Amistats i enemistats
 
             //Fem 100 iteracions perquè no es quedi bloquejat
-        for(int i = 0; i < 20; i++){
+        for(int i = 0; i < 5; i++){
             //System.out.println("ITERACIÓ "+i+" PER A CANVIAR AMICS");
 
             //Mirem d'ajustar els grups d'amic i enemics
