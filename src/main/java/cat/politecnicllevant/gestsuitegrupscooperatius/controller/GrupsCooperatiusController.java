@@ -1,11 +1,11 @@
 package cat.politecnicllevant.gestsuitegrupscooperatius.controller;
 
-import cat.iesmanacor.common.model.Notificacio;
-import cat.iesmanacor.common.model.NotificacioTipus;
-import cat.iesmanacor.gestsuitegrupscooperatius.dto.*;
+import cat.politecnicllevant.common.model.Notificacio;
+import cat.politecnicllevant.common.model.NotificacioTipus;
+import cat.politecnicllevant.gestsuitegrupscooperatius.dto.*;
 import cat.politecnicllevant.gestsuitegrupscooperatius.dto.gestib.UsuariDto;
 import cat.politecnicllevant.gestsuitegrupscooperatius.restclient.CoreRestClient;
-import cat.iesmanacor.gestsuitegrupscooperatius.service.*;
+import cat.politecnicllevant.gestsuitegrupscooperatius.service.*;
 import cat.politecnicllevant.gestsuitegrupscooperatius.dto.*;
 import cat.politecnicllevant.gestsuitegrupscooperatius.service.*;
 import com.google.gson.Gson;
